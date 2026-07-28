@@ -14,6 +14,7 @@ import { ExitIntentDialog } from './dialogs/ExitIntentDialog';
 import { WaitlistDialog } from './dialogs/WaitlistDialog';
 import { HeroSection } from './sections/HeroSection';
 import { ProblemSection } from './sections/ProblemSection';
+import { YoutubeSection } from './sections/YoutubeSection';
 import { WalkAwaySection } from './sections/WalkAwaySection';
 import { PricingSection } from './sections/PricingSection';
 import { InstructorSection } from './sections/InstructorSection';
@@ -196,6 +197,7 @@ const WebinarPage = ({
         seatsProgress={seatsProgress}
       />
       <ProblemSection {...sectionProps} />
+      <YoutubeSection />
       <WalkAwaySection {...sectionProps} />
       <PricingSection {...sectionProps} seatsLeft={seatsLeft} seatsTotal={seatsTotal} />
       <InstructorSection {...sectionProps} />

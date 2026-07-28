@@ -134,12 +134,17 @@ export const WEBINAR_EXP_OPTIONS = ['0 (student / fresher)', '1–2 years', '3�
 export const WEBINAR_PLAN_SLUG = 'webinar-live';
 export const WEBINAR_DATETIME_LABEL = 'Sunday, July 20, 2026 · 8 PM ET';
 
+export const WEBINAR_YOUTUBE_URL = 'https://youtube.com/shorts/Hv2zcXPCpUQ?feature=share';
+export const WEBINAR_YOUTUBE_VIDEO_ID = 'Hv2zcXPCpUQ';
+export const WEBINAR_YOUTUBE_THUMBNAIL = '/webinar2.png';
+export const WEBINAR_YOUTUBE_EMBED_URL = `https://www.youtube.com/embed/${WEBINAR_YOUTUBE_VIDEO_ID}?rel=0&modestbranding=1`;
+
 export const WEBINAR_DEFAULTS = {
   price: 19.99,
   seatsLeft: 5,
   seatsTotal: 25,
   webinarDate: '2026-07-20T20:00:00-04:00',
-  videoEmbedUrl: 'https://www.youtube.com/embed/m4BUjOgkTPA?start=1178&rel=0',
+  videoEmbedUrl: WEBINAR_YOUTUBE_EMBED_URL,
 };
 
 export const EMPTY_WEBINAR_FORM = {
