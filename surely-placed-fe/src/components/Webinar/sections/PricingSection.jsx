@@ -68,10 +68,7 @@ export function PricingSection({
             fontWeight={700}
             color="primary.main"
           >
-            {priceLabel}
-          </Typography>
-          <Typography variant="body2" color="text.subText">
-            today, one-time
+            Free
           </Typography>
         </Box>
         <ReserveButton
@@ -87,7 +84,7 @@ export function PricingSection({
           textAlign="center"
           mt={1.5}
         >
-          Secure checkout · Instant email confirmation · Only {seatsLeft} of {seatsTotal} seats left
+          Instant email confirmation · Only {seatsLeft} of {seatsTotal} seats left
         </Typography>
       </Box>
     </AnimatedSection>

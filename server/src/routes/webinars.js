@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { getPublicWebinarConfig } from '../services/webinarEvents.js';
 import { addToWaitlist } from '../services/webinarWaitlist.js';
-import { claimWebinarJoin, requestWebinarJoinOtp } from '../services/orders.js';
+import { claimWebinarJoin, registerWebinarFree, requestWebinarJoinOtp } from '../services/orders.js';
 
 const router = Router();
 
@@ -31,6 +31,35 @@ router.post('/join', async (req, res, next) => {
     res.json(result);
   } catch (error) {
     next(error);
+  }
+});
+
+router.post('/register', async (req, res, next) => {
+  try {
+    const { name, email, contact, registration } = req.body || {};
+
+    if (!name?.trim() || !email?.trim()) {
+      return res.status(400).json({
+        error: 'name and email are required',
+      });
+    }
+
+    const result = await registerWebinarFree({
+      name,
+      email,
+      contact,
+      registration,
+    });
+
+    return res.status(201).json({
+      success: true,
+      order: result.order,
+      plan: result.plan,
+      customer: result.customer,
+      payment: result.payment,
+    });
+  } catch (error) {
+    return next(error);
   }
 });
 

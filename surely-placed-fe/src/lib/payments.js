@@ -53,6 +53,15 @@ export async function getActiveWebinarPublic() {
   return parseResponse(response);
 }
 
+export async function registerForWebinar({ name, email, contact, registration }) {
+  const response = await fetch(`${getPaymentsApiUrl()}/api/webinars/register`, {
+    method: 'POST',
+    headers: buildHeaders(),
+    body: JSON.stringify({ name, email, contact, registration }),
+  });
+  return parseResponse(response);
+}
+
 export async function joinWebinarWaitlist({ name, email, contact }) {
   const response = await fetch(`${getPaymentsApiUrl()}/api/webinars/waitlist`, {
     method: 'POST',

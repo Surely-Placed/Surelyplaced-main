@@ -10,7 +10,6 @@ import {
   Stack,
   TextField,
   Typography,
-  Box,
 } from '@mui/material';
 import {
   WEBINAR_COUNTRY_OPTIONS,
@@ -45,175 +44,133 @@ export function RegistrationDialog({
   onFieldChange,
   formError,
   datetimeLabel,
-  priceLabel,
-  checkoutLoading,
+  submitting,
   onSubmit,
-  paymentStep = false,
-  buttonsHostRef,
-  onBackToForm,
 }) {
   return (
-    <Dialog
-      open={open}
-      onClose={checkoutLoading ? undefined : onClose}
-      fullWidth
-      maxWidth="sm"
-      disableScrollLock
-      disableEnforceFocus={paymentStep}
-      disableAutoFocus={paymentStep}
-    >
+    <Dialog open={open} onClose={submitting ? undefined : onClose} fullWidth maxWidth="sm" disableScrollLock>
       <DialogContent sx={{ p: { xs: 2.5, md: 4 } }}>
         <Stack spacing={2}>
           <Typography component="h2" variant="h5" fontFamily={'var(--font-avantgarde), sans-serif'}>
-            {paymentStep ? 'Pay with PayPal' : 'Register for the webinar'}
+            Register for the webinar
           </Typography>
           <Typography variant="body2" color="text.subText">
-            Live webinar · {datetimeLabel} · {priceLabel}
+            Live webinar · {datetimeLabel} · Free
           </Typography>
 
-          {!paymentStep ? (
-            <>
+          <TextField
+            fullWidth
+            required
+            label="Full name"
+            value={form.fullName}
+            onChange={onFieldChange('fullName')}
+          />
+          <TextField
+            fullWidth
+            required
+            label="Email"
+            type="email"
+            value={form.email}
+            onChange={onFieldChange('email')}
+          />
+          <TextField
+            fullWidth
+            required
+            label="Phone (with country code)"
+            value={form.phone}
+            onChange={onFieldChange('phone')}
+            placeholder="+1 555 000 0000"
+            helperText="Include country code, e.g. +1 or +91"
+          />
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
+                select
                 fullWidth
                 required
-                label="Full name"
-                value={form.fullName}
-                onChange={onFieldChange('fullName')}
-              />
-              <TextField
-                fullWidth
-                required
-                label="Email"
-                type="email"
-                value={form.email}
-                onChange={onFieldChange('email')}
-              />
-              <TextField
-                fullWidth
-                required
-                label="Phone (with country code)"
-                value={form.phone}
-                onChange={onFieldChange('phone')}
-                placeholder="+1 555 000 0000"
-                helperText="Include country code, e.g. +1 or +91"
-              />
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    select
-                    fullWidth
-                    required
-                    label="Country"
-                    value={form.country}
-                    onChange={onFieldChange('country')}
-                  >
-                    {WEBINAR_COUNTRY_OPTIONS.map((o) => (
-                      <MenuItem key={o} value={o}>
-                        {o}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    select
-                    fullWidth
-                    required
-                    label="Current status"
-                    value={form.status}
-                    onChange={onFieldChange('status')}
-                  >
-                    {WEBINAR_STATUS_OPTIONS.map((o) => (
-                      <MenuItem key={o} value={o}>
-                        {o}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-              </Grid>
-              <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    select
-                    fullWidth
-                    required
-                    label="Visa status"
-                    value={form.visa}
-                    onChange={onFieldChange('visa')}
-                  >
-                    {WEBINAR_VISA_OPTIONS.map((o) => (
-                      <MenuItem key={o} value={o}>
-                        {o}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-                <Grid size={{ xs: 12, sm: 6 }}>
-                  <TextField
-                    select
-                    fullWidth
-                    required
-                    label="Years of experience"
-                    value={form.exp}
-                    onChange={onFieldChange('exp')}
-                  >
-                    {WEBINAR_EXP_OPTIONS.map((o) => (
-                      <MenuItem key={o} value={o}>
-                        {o}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-              </Grid>
-              {formError && (
-                <Typography variant="body2" color="error">
-                  {formError}
-                </Typography>
-              )}
-              <Button
-                variant="filled"
-                fullWidth
-                disabled={checkoutLoading}
-                onClick={onSubmit}
-                sx={primaryCtaSx}
+                label="Country"
+                value={form.country}
+                onChange={onFieldChange('country')}
               >
-                {checkoutLoading ? (
-                  <CircularProgress size={24} sx={{ color: 'extremes.light' }} />
-                ) : (
-                  `Continue to PayPal — ${priceLabel}`
-                )}
-              </Button>
-            </>
-          ) : (
-            <>
-              <Typography variant="body2" color="text.subText">
-                Click the PayPal button below. A PayPal window will open to complete payment.
-              </Typography>
-              {checkoutLoading && (
-                <Box display="flex" justifyContent="center" py={2}>
-                  <CircularProgress size={28} />
-                </Box>
-              )}
-              <Box
-                ref={buttonsHostRef}
-                sx={{
-                  minHeight: 50,
-                  '& iframe': { zIndex: 1301 },
-                }}
-              />
-              {formError && (
-                <Typography variant="body2" color="error">
-                  {formError}
-                </Typography>
-              )}
-              <Button variant="text" onClick={onBackToForm} disabled={checkoutLoading}>
-                ← Back to registration details
-              </Button>
-            </>
+                {WEBINAR_COUNTRY_OPTIONS.map((o) => (
+                  <MenuItem key={o} value={o}>
+                    {o}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                select
+                fullWidth
+                required
+                label="Current status"
+                value={form.status}
+                onChange={onFieldChange('status')}
+              >
+                {WEBINAR_STATUS_OPTIONS.map((o) => (
+                  <MenuItem key={o} value={o}>
+                    {o}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                select
+                fullWidth
+                required
+                label="Visa status"
+                value={form.visa}
+                onChange={onFieldChange('visa')}
+              >
+                {WEBINAR_VISA_OPTIONS.map((o) => (
+                  <MenuItem key={o} value={o}>
+                    {o}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <TextField
+                select
+                fullWidth
+                required
+                label="Years of experience"
+                value={form.exp}
+                onChange={onFieldChange('exp')}
+              >
+                {WEBINAR_EXP_OPTIONS.map((o) => (
+                  <MenuItem key={o} value={o}>
+                    {o}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
+          {formError && (
+            <Typography variant="body2" color="error">
+              {formError}
+            </Typography>
           )}
+          <Button
+            variant="filled"
+            fullWidth
+            disabled={submitting}
+            onClick={onSubmit}
+            sx={primaryCtaSx}
+          >
+            {submitting ? (
+              <CircularProgress size={24} sx={{ color: 'extremes.light' }} />
+            ) : (
+              'Reserve My Seat'
+            )}
+          </Button>
 
           <Typography variant="caption" color="text.subText" textAlign="center">
-            Secure checkout via PayPal · USD · Instant confirmation email
+            Instant confirmation email · Limited seats
           </Typography>
         </Stack>
       </DialogContent>

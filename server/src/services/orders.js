@@ -315,6 +315,18 @@ function serializeCreateOrderResponse(order, plan, customer, amountMinor) {
   };
 }
 
+function buildRegistrationSummary(registration) {
+  if (!registration) return '';
+  return [
+    registration.country && `Country: ${registration.country}`,
+    registration.status && `Status: ${registration.status}`,
+    registration.visa && `Visa: ${registration.visa}`,
+    registration.experience && `Experience: ${registration.experience}`,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+}
+
 export async function createOrder({
   planSlug,
   name,
@@ -378,16 +390,7 @@ export async function createOrder({
     throw error;
   }
 
-  const registrationSummary = registration
-    ? [
-        registration.country && `Country: ${registration.country}`,
-        registration.status && `Status: ${registration.status}`,
-        registration.visa && `Visa: ${registration.visa}`,
-        registration.experience && `Experience: ${registration.experience}`,
-      ]
-        .filter(Boolean)
-        .join(' · ')
-    : '';
+  const registrationSummary = buildRegistrationSummary(registration);
 
   const [customer] = await table('customers')
     .insert({
@@ -455,6 +458,65 @@ export async function createOrder({
   }
 
   return serializeCreateOrderResponse(order, plan, customer, plan.amount_minor);
+}
+
+/**
+ * Free webinar registration — same customer/order storage and post-registration
+ * pipeline as paid checkout (Zoom, seats, email, Google Sheets), without PayPal.
+ */
+export async function registerWebinarFree({ name, email, contact, registration }) {
+  const plan = await getPlanBySlug(WEBINAR_PLAN_SLUG);
+  if (!plan) {
+    const error = new Error(`Plan not found: ${WEBINAR_PLAN_SLUG}`);
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const activeWebinar = await getActiveWebinarEvent();
+  if (!activeWebinar) {
+    const error = new Error(
+      'No webinar is scheduled right now. Join the waitlist to get notified.'
+    );
+    error.statusCode = 409;
+    throw error;
+  }
+  if (activeWebinar.seats_left <= 0) {
+    const error = new Error('This webinar is sold out');
+    error.statusCode = 409;
+    throw error;
+  }
+  await assertWebinarEmailAvailable(email, activeWebinar);
+
+  const currency = (plan.currency || PAYMENT_CURRENCY).toUpperCase();
+  const registrationSummary = buildRegistrationSummary(registration);
+
+  const [customer] = await table('customers')
+    .insert({
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      contact: contact?.trim() || null,
+      service_requirement: registrationSummary || null,
+    })
+    .returning('*');
+
+  const [order] = await table('orders')
+    .insert({
+      plan_id: plan.id,
+      customer_id: customer.id,
+      status: 'paid',
+      amount_minor: 0,
+      currency,
+      metadata: {
+        plan_slug: plan.slug,
+        plan_name: plan.name,
+        registration: registration || {},
+        webinar_event_id: activeWebinar.id,
+        payment_provider: 'free',
+      },
+    })
+    .returning('*');
+
+  return finalizePaidOrder(order.id);
 }
 
 export async function getOrderById(orderId) {
@@ -897,7 +959,7 @@ export async function requestWebinarJoinOtp({ token, email, deviceId }) {
     throw error;
   }
   if (!normalizedEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(normalizedEmail)) {
-    const error = new Error('Enter the email you used when paying');
+    const error = new Error('Enter the email you used when registering');
     error.statusCode = 400;
     throw error;
   }
@@ -928,7 +990,7 @@ export async function requestWebinarJoinOtp({ token, email, deviceId }) {
     .toLowerCase();
   if (paidEmail !== normalizedEmail) {
     const error = new Error(
-      'That email does not match this registration. Use the same email you paid with.'
+      'That email does not match this registration. Use the same email you used when registering.'
     );
     error.statusCode = 403;
     throw error;
@@ -1006,7 +1068,7 @@ export async function claimWebinarJoin({ token, deviceId, email, otp }) {
     throw error;
   }
   if (!normalizedEmail) {
-    const error = new Error('Enter the email you used when paying');
+    const error = new Error('Enter the email you used when registering');
     error.statusCode = 400;
     throw error;
   }
@@ -1044,7 +1106,7 @@ export async function claimWebinarJoin({ token, deviceId, email, otp }) {
       .toLowerCase();
     if (paidEmail !== normalizedEmail) {
       const error = new Error(
-        'That email does not match this registration. Use the same email you paid with.'
+        'That email does not match this registration. Use the same email you used when registering.'
       );
       error.statusCode = 403;
       throw error;

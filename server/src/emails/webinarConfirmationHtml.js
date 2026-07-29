@@ -109,7 +109,7 @@ export function buildWebinarConfirmationHtml({
   const rows = [
     detailRow('Event', eventTitle, { alt: false }),
     detailRow('Date & time', datetimeLabel, { alt: true }),
-    detailRow('Amount paid', amountPaid, { alt: false }),
+    amountPaid ? detailRow('Amount paid', amountPaid, { alt: false }) : '',
     detailRow('Status', 'Confirmed', { badge: true, alt: true }),
     detailRow('Order ID', orderId, { mono: true, alt: false }),
   ].join('');
