@@ -497,7 +497,7 @@ export async function updateWebinarEvent(eventId, patch = {}) {
   }
   if (patch.priceCents !== undefined && patch.priceCents !== null) {
     const cents = Number(patch.priceCents);
-    if (!Number.isFinite(cents) || cents < 1) {
+    if (!Number.isFinite(cents) || cents < 0) {
       const error = new Error('Invalid price');
       error.statusCode = 400;
       throw error;
@@ -519,7 +519,7 @@ export async function updateWebinarEvent(eventId, patch = {}) {
 
 async function syncWebinarPlanPrice(priceCents) {
   const cents = Math.round(Number(priceCents));
-  if (!Number.isFinite(cents) || cents < 1) return;
+  if (!Number.isFinite(cents) || cents < 0) return;
   await table('plans')
     .where({ slug: 'webinar-live' })
     .update({

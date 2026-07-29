@@ -16,7 +16,7 @@ export function SuccessDialog({ open, onClose, email, datetimeLabel }) {
           You&apos;re in. Congratulations!
         </Typography>
         <Typography variant="body1" color="text.subText" mb={2}>
-          Payment confirmed. A confirmation email with your one-device Zoom access link is on its way
+          You&apos;re registered. A confirmation email with your one-device Zoom access link is on its way
           to{' '}
           <Typography component="span" fontWeight={600} color="text">
             {email || 'your email'}

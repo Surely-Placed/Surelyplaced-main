@@ -100,6 +100,10 @@ function isWebinarOrder(plan, order) {
   return plan?.slug === 'webinar-live' || order?.metadata?.plan_slug === 'webinar-live';
 }
 
+function isFreeOrder(order) {
+  return order?.amount_minor === 0 || order?.metadata?.payment_provider === 'free';
+}
+
 function getWebinarDatetimeLabel(order) {
   return (
     order?.metadata?.datetime_label ||
@@ -121,7 +125,7 @@ export async function sendZoomRegistrationFailureAlert({ order, plan, customer, 
     html: buildEmailHtml({
       title: 'Zoom webinar registration failed',
       intro:
-        'Payment succeeded, but the attendee was not added to Zoom. Register them manually in Zoom or retry after checking ZOOM_* credentials.',
+        'Registration succeeded, but the attendee was not added to Zoom. Register them manually in Zoom or retry after checking ZOOM_* credentials.',
       lines: [
         { label: 'Customer', value: customer?.name },
         { label: 'Email', value: customer?.email },
@@ -142,7 +146,8 @@ export async function sendPaymentEmails({ order, plan, customer, payment }) {
     return;
   }
 
-  const amount = formatAmount(order.amount_minor, order.currency);
+  const free = isFreeOrder(order);
+  const amount = free ? 'Free' : formatAmount(order.amount_minor, order.currency);
   const webinar = isWebinarOrder(plan, order);
   const registrationLines = getRegistrationLines(order, customer);
   const zoom = order?.metadata?.zoom || {};
@@ -156,10 +161,10 @@ export async function sendPaymentEmails({ order, plan, customer, payment }) {
 
   const paymentLines = [
     { label: 'Plan', value: plan?.name || 'N/A' },
-    { label: 'Amount paid', value: amount },
+    { label: free ? 'Price' : 'Amount paid', value: amount },
     { label: 'Webinar date', value: webinar ? datetimeLabel : null },
     { label: 'Order ID', value: order.id },
-    { label: 'Payment ID', value: payment?.paypal_payment_id || 'Confirmed' },
+    { label: 'Payment ID', value: free ? null : payment?.paypal_payment_id || 'Confirmed' },
     { label: 'Zoom registrant ID', value: zoom.registrant_id || null },
     { label: 'Portal join link (1 device)', value: portalJoinUrl },
     { label: 'Zoom join link (raw)', value: zoomJoinUrl },
@@ -179,7 +184,9 @@ export async function sendPaymentEmails({ order, plan, customer, payment }) {
     html: buildEmailHtml({
       title: webinar ? 'New webinar registration' : 'New payment received',
       intro: webinar
-        ? 'A new attendee has registered and paid for the live career webinar.'
+        ? free
+          ? 'A new attendee has registered for the live career webinar.'
+          : 'A new attendee has registered and paid for the live career webinar.'
         : 'A new payment has been completed on Surely Placed.',
       lines: paymentLines,
     }),
@@ -193,7 +200,7 @@ export async function sendPaymentEmails({ order, plan, customer, payment }) {
       ? buildWebinarConfirmationHtml({
           customerName: customer.name,
           datetimeLabel,
-          amountPaid: amount,
+          amountPaid: free ? null : amount,
           orderId: order.id,
           joinUrl: customerJoinUrl,
           logoUrl: `cid:${LOGO_CID}`,
@@ -254,13 +261,13 @@ export async function sendWebinarJoinOtpEmail({ to, name, otp }) {
     subject: `${otp} is your Surely Placed webinar access code`,
     html: buildEmailHtml({
       title: 'Webinar access code',
-      intro: `Hi ${safeName}, use this code to open your paid Zoom seat. It expires in 10 minutes.`,
+      intro: `Hi ${safeName}, use this code to open your Zoom seat. It expires in 10 minutes.`,
       lines: [
         { label: 'Access code', value: String(otp) },
         {
           label: 'Note',
           value:
-            'Only the email that paid for this webinar can use this code. Do not share it.',
+            'Only the email that registered for this webinar can use this code. Do not share it.',
         },
       ],
     }),

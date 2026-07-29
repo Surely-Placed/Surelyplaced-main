@@ -44,7 +44,7 @@ export function MobileStickyCta({
         )}
       </Box>
       <Button variant="filled" onClick={onReserve} sx={primaryCtaSx}>
-        {webinarActive ? `Reserve · ${priceLabel}` : 'Notify Me'}
+        {webinarActive ? 'Reserve My Seat' : 'Notify Me'}
       </Button>
     </Box>
   );

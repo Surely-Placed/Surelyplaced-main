@@ -2,10 +2,9 @@
 
 import React, { useCallback, useState } from 'react';
 import { showToast } from '@/hooks/showToast';
-import { usePayPalCheckout } from '@/hooks/usePayPalCheckout';
 import { trackMetaEvent } from '@/components/seo/MetaPixel';
-import { joinWebinarWaitlist } from '@/lib/payments';
-import { EMPTY_WEBINAR_FORM, WEBINAR_PLAN_SLUG } from '../../../mockData/Webinar';
+import { joinWebinarWaitlist, registerForWebinar } from '@/lib/payments';
+import { EMPTY_WEBINAR_FORM } from '../../../mockData/Webinar';
 import { useExitIntent } from './hooks/useExitIntent';
 import { useWebinarPublic } from './hooks/useWebinarPublic';
 import { RegistrationDialog, validateRegistration } from './dialogs/RegistrationDialog';
@@ -33,7 +32,6 @@ const WebinarPage = ({
   onLeadCapture,
 }) => {
   const {
-    price,
     priceLabel,
     seatsLeft,
     setSeatsLeft,
@@ -53,6 +51,7 @@ const WebinarPage = ({
   const [registrationOpen, setRegistrationOpen] = useState(false);
   const [form, setForm] = useState(EMPTY_WEBINAR_FORM);
   const [formError, setFormError] = useState('');
+  const [registrationLoading, setRegistrationLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [exitOpen, setExitOpen] = useState(false);
   const [exitName, setExitName] = useState('');
@@ -66,36 +65,6 @@ const WebinarPage = ({
   const [notifyLoading, setNotifyLoading] = useState(false);
   const [notifySent, setNotifySent] = useState(false);
 
-  const {
-    startCheckout,
-    loading: checkoutLoading,
-    paymentStep,
-    buttonsHostRef,
-    resetPaymentStep,
-    error: paypalError,
-  } = usePayPalCheckout({
-    onSuccess: () => {
-      setRegistrationOpen(false);
-      setSuccess(true);
-      setSeatsLeft((n) => Math.max(0, Number(n) - 1));
-      trackMetaEvent('Lead', { content_name: 'Webinar Registration' });
-      trackMetaEvent('Purchase', {
-        value: price,
-        currency: 'USD',
-        content_name: 'Live Career Webinar',
-        content_ids: [WEBINAR_PLAN_SLUG],
-      });
-      showToast('Payment successful! Check your email for confirmation.', 'success');
-    },
-    onFailure: (err) => {
-      if (err?.message === 'Checkout dismissed') {
-        return;
-      }
-      setFormError(err?.message || 'Payment failed. Please try again.');
-      showToast(err?.message || 'Payment failed. Please try again.', 'error');
-    },
-  });
-
   useExitIntent(
     exitPopup && !registrationOpen && !success,
     useCallback(() => setExitOpen(true), [])
@@ -103,7 +72,7 @@ const WebinarPage = ({
 
   const setField = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
-  const openCheckout = () => {
+  const openRegistration = () => {
     if (!webinarActive) {
       setNotifyOpen(true);
       setNotifyError('');
@@ -112,11 +81,6 @@ const WebinarPage = ({
     }
     setRegistrationOpen(true);
     setFormError('');
-    trackMetaEvent('InitiateCheckout', {
-      value: price,
-      currency: 'USD',
-      content_name: 'Live Career Webinar',
-    });
   };
 
   const submitNotify = async () => {
@@ -155,9 +119,9 @@ const WebinarPage = ({
     }
 
     setFormError('');
+    setRegistrationLoading(true);
     try {
-      await startCheckout({
-        planSlug: WEBINAR_PLAN_SLUG,
+      await registerForWebinar({
         name: form.fullName.trim(),
         email: form.email.trim(),
         contact: form.phone.trim(),
@@ -168,9 +132,17 @@ const WebinarPage = ({
           experience: form.exp,
         },
       });
+      setRegistrationOpen(false);
+      setSuccess(true);
+      setSeatsLeft((n) => Math.max(0, Number(n) - 1));
+      onLeadCapture?.({ name: form.fullName.trim(), email: form.email.trim() });
+      trackMetaEvent('Lead', { content_name: 'Webinar Registration' });
+      showToast('Registration successful! Check your email for confirmation.', 'success');
     } catch (err) {
-      setFormError(err?.message || 'Unable to start payment. Please try again.');
-      showToast(err?.message || 'Unable to start payment.', 'error');
+      setFormError(err?.message || 'Registration failed. Please try again.');
+      showToast(err?.message || 'Registration failed. Please try again.', 'error');
+    } finally {
+      setRegistrationLoading(false);
     }
   };
 
@@ -183,7 +155,7 @@ const WebinarPage = ({
   const sectionProps = {
     webinarActive,
     priceLabel,
-    onReserve: openCheckout,
+    onReserve: openRegistration,
   };
 
   return (
@@ -209,29 +181,21 @@ const WebinarPage = ({
         datetimeLabel={datetimeLabel}
         seatsLeft={seatsLeft}
         priceLabel={priceLabel}
-        onReserve={openCheckout}
+        onReserve={openRegistration}
       />
 
       <RegistrationDialog
         open={registrationOpen}
         onClose={() => {
-          if (checkoutLoading) return;
-          resetPaymentStep();
+          if (registrationLoading) return;
           setRegistrationOpen(false);
         }}
         form={form}
         onFieldChange={setField}
-        formError={formError || paypalError}
+        formError={formError}
         datetimeLabel={datetimeLabel}
-        priceLabel={priceLabel}
-        checkoutLoading={checkoutLoading}
+        submitting={registrationLoading}
         onSubmit={submitRegistration}
-        paymentStep={paymentStep}
-        buttonsHostRef={buttonsHostRef}
-        onBackToForm={() => {
-          resetPaymentStep();
-          setFormError('');
-        }}
       />
       <SuccessDialog
         open={success}

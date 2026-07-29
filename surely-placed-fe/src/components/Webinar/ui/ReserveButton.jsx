@@ -11,7 +11,7 @@ export function ReserveButton({ webinarActive, priceLabel, onClick, fullWidth = 
       onClick={onClick}
       sx={{ ...primaryCtaSx, width: fullWidth ? '100%' : 'auto' }}
     >
-      {webinarActive ? `Reserve My Seat — ${priceLabel}` : 'Notify Me When Seats Open'}
+      {webinarActive ? 'Reserve My Seat' : 'Notify Me When Seats Open'}
     </Button>
   );
 }
