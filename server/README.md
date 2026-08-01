@@ -78,6 +78,9 @@ WEBINAR_ADMIN_PASSWORD=
 # WEBINAR_ADMIN_TOKEN_SECRET=
 
 # GOOGLE_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/.../exec
+
+# Webinar registration sheet — Apps Script /exec URL (see scripts/webinar-registration-sheet-apps-script.js)
+# WEBINAR_REGISTRATION_SHEET_WEBHOOK_URL=https://script.google.com/macros/s/.../exec
 ```
 
 Schema: **`surelyplaced`** inside the shared Postgres database (e.g. `theplugin` on Neon). Other projects can use other schemas in the same DB.

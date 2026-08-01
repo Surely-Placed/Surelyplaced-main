@@ -70,6 +70,9 @@ export const config = {
     // Google Apps Script web app URL (POST JSON). Sheet can be public/shared.
     webhookUrl: optionalEnv('GOOGLE_SHEETS_WEBHOOK_URL'),
   },
+  webinarRegistrationSheet: {
+    webhookUrl: optionalEnv('WEBINAR_REGISTRATION_SHEET_WEBHOOK_URL'),
+  },
 };
 
 export function assertPaymentsConfig() {
