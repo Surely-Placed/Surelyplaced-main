@@ -1,7 +1,11 @@
 import { config } from '../config.js';
 
+function getSheetWebhookUrl() {
+  return config.googleSheets?.webhookUrl || config.webinarRegistrationSheet?.webhookUrl || '';
+}
+
 export function isGoogleSheetsConfigured() {
-  return Boolean(config.googleSheets?.webhookUrl);
+  return Boolean(getSheetWebhookUrl());
 }
 
 /**
@@ -21,7 +25,8 @@ export function formatPhoneForSheet(raw) {
 }
 
 async function appendViaWebhook(payload) {
-  const response = await fetch(config.googleSheets.webhookUrl, {
+  const webhookUrl = getSheetWebhookUrl();
+  const response = await fetch(webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     redirect: 'follow',

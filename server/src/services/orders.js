@@ -17,7 +17,6 @@ import {
   resolveActiveZoomMeetingId,
 } from './webinarEvents.js';
 import { syncPaidWebinarRegistrationToSheet } from './googleSheets.js';
-import { logWebinarRegistrantToSheet } from './sheetLogger.js';
 import crypto from 'crypto';
 
 const IDEMPOTENCY_TTL_HOURS = 24;
@@ -209,12 +208,6 @@ async function finalizePaidOrder(orderId) {
     } catch (sheetError) {
       console.error('Google Sheets sync failed:', sheetError.message);
     }
-  }
-
-  if (isWebinarOrder(result.plan, result.order)) {
-    void logWebinarRegistrantToSheet(result).catch((err) => {
-      console.error('[sheetLogger] Real-time sync failed:', err?.message || err);
-    });
   }
 
   return result;
