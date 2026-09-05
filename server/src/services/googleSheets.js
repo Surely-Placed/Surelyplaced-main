@@ -1,11 +1,12 @@
 import { config } from '../config.js';
 
-function getSheetWebhookUrl() {
-  return config.googleSheets?.webhookUrl || config.webinarRegistrationSheet?.webhookUrl || '';
+/** Paid webinar sync — WEBINAR_REGISTRATION_SHEET_WEBHOOK_URL first, then legacy GOOGLE_SHEETS. */
+function getWebinarSheetWebhookUrl() {
+  return config.webinarRegistrationSheet?.webhookUrl || config.googleSheets?.webhookUrl || '';
 }
 
 export function isGoogleSheetsConfigured() {
-  return Boolean(getSheetWebhookUrl());
+  return Boolean(getWebinarSheetWebhookUrl());
 }
 
 /**
@@ -24,8 +25,7 @@ export function formatPhoneForSheet(raw) {
   return phone;
 }
 
-async function appendViaWebhook(payload) {
-  const webhookUrl = getSheetWebhookUrl();
+async function postToSheetWebhook(webhookUrl, payload) {
   const response = await fetch(webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -36,6 +36,11 @@ async function appendViaWebhook(payload) {
     const text = await response.text().catch(() => '');
     throw new Error(`Google Sheets webhook failed (${response.status}): ${text.slice(0, 300)}`);
   }
+}
+
+async function appendViaWebhook(payload) {
+  const webhookUrl = getWebinarSheetWebhookUrl();
+  await postToSheetWebhook(webhookUrl, payload);
 }
 
 /**
