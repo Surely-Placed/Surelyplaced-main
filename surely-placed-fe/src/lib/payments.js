@@ -18,7 +18,11 @@ function buildHeaders(idempotencyKey) {
 async function parseResponse(response) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(data.error || `Payments API error (${response.status})`);
+    const error = new Error(data.error || `Payments API error (${response.status})`);
+    if (data.details) {
+      error.details = data.details;
+    }
+    throw error;
   }
   return data;
 }
@@ -67,6 +71,15 @@ export async function joinWebinarWaitlist({ name, email, contact }) {
     method: 'POST',
     headers: buildHeaders(),
     body: JSON.stringify({ name, email, contact }),
+  });
+  return parseResponse(response);
+}
+
+export async function submitEnrollmentRequest(payload) {
+  const response = await fetch(`${getPaymentsApiUrl()}/api/enrollment-requests`, {
+    method: 'POST',
+    headers: buildHeaders(),
+    body: JSON.stringify(payload),
   });
   return parseResponse(response);
 }

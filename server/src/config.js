@@ -73,6 +73,14 @@ export const config = {
   webinarRegistrationSheet: {
     webhookUrl: optionalEnv('WEBINAR_REGISTRATION_SHEET_WEBHOOK_URL'),
   },
+  enrollmentSheet: {
+    spreadsheetId: optionalEnv('ENROLLMENT_SHEET_SPREADSHEET_ID'),
+    sheetName: optionalEnv('ENROLLMENT_SHEET_NAME', 'Enrollment Requests'),
+  },
+  googleServiceAccount: {
+    json: optionalEnv('GOOGLE_SERVICE_ACCOUNT_JSON'),
+    credentialsPath: optionalEnv('GOOGLE_APPLICATION_CREDENTIALS'),
+  },
 };
 
 export function assertPaymentsConfig() {
