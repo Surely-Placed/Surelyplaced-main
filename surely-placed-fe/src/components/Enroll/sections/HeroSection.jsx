@@ -6,14 +6,17 @@ import { AnimatedSection } from '../../Webinar/ui/AnimatedSection';
 import { EnrollmentForm } from '../EnrollmentForm';
 
 const HERO_BULLETS = [
-  'One-time upfront fee — the big success fee is due only when you\'re placed',
-  '~100 international candidates placed, across every major visa status',
+  '850+ international candidates placed, across every major visa status',
   'A dedicated team applying, marketing your profile, and prepping you daily',
+  'Free profile review — a real advisor calls you within 24 hours',
 ];
 
-export function HeroSection({ onScrollToForm }) {
+export function HeroSection({ onScrollToForm, sectionRef }) {
   return (
-    <Box sx={{ bgcolor: 'extremes.light', pt: { xs: '6rem', lg: '6.5rem' } }}>
+    <Box
+      ref={sectionRef}
+      sx={{ bgcolor: 'extremes.light', pt: { xs: '6rem', lg: '6.5rem' } }}
+    >
     <AnimatedSection sx={sectionSx}>
       <Grid container spacing={4} alignItems="center">
         <Grid size={{ xs: 12, lg: 6 }}>

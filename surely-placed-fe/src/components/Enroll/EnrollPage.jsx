@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
+import { StickyBottomCta } from './StickyBottomCta';
 import { HeroSection } from './sections/HeroSection';
 import { PainPointsSection } from './sections/PainPointsSection';
 import { ServicesSection } from './sections/ServicesSection';
@@ -10,6 +11,9 @@ import { PricingSection, ClosingCtaSection } from './sections/PricingSection';
 import { FaqSection } from './sections/FaqSection';
 
 export default function EnrollPage() {
+  const heroRef = useRef(null);
+  const closingCtaRef = useRef(null);
+
   const scrollToForm = useCallback(() => {
     const form = document.getElementById('enrollment-form');
     form?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -17,14 +21,19 @@ export default function EnrollPage() {
 
   return (
     <>
-      <HeroSection onScrollToForm={scrollToForm} />
+      <HeroSection sectionRef={heroRef} onScrollToForm={scrollToForm} />
       <PainPointsSection />
       <ServicesSection />
       <HowItWorksSection />
       <TestimonialsSection />
       <PricingSection onScrollToForm={scrollToForm} />
       <FaqSection />
-      <ClosingCtaSection onScrollToForm={scrollToForm} />
+      <ClosingCtaSection sectionRef={closingCtaRef} onScrollToForm={scrollToForm} />
+      <StickyBottomCta
+        heroRef={heroRef}
+        ctaRef={closingCtaRef}
+        onScrollToForm={scrollToForm}
+      />
     </>
   );
 }
