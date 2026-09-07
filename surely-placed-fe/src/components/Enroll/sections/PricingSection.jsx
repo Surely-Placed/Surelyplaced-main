@@ -7,57 +7,53 @@ import { AnimatedSection } from '../../Webinar/ui/AnimatedSection';
 export function PricingSection({ onScrollToForm }) {
   return (
     <AnimatedSection sx={sectionSx}>
-      <Typography variant="overline" color="primary.main" fontWeight={600} display="block" mb={1}>
-        Plans start at $349
-      </Typography>
-      <Typography component="h2" sx={{ ...headingSx, mb: 1.5 }}>
-        Pay a one-time upfront fee. Pay the big fee only when you&apos;re placed.
-      </Typography>
-      <Typography sx={{ ...bodySx, color: 'text.subText', mb: 4, maxWidth: 820 }}>
-        Every plan follows the same promise: a single upfront fee to fund real work — daily
-        applications, prep, and marketing — and a success fee due only once you land the offer. No
-        placement, no big bill.
-      </Typography>
-      <Box
-        sx={{
-          p: { xs: 3, md: 4 },
-          borderRadius: '1rem',
-          border: '2px solid',
-          borderColor: 'primary.main',
-          bgcolor: '#F8FAFF',
-          maxWidth: 560,
-        }}
+      <Stack
+        direction={{ xs: 'column', md: 'row' }}
+        alignItems={{ xs: 'stretch', md: 'center' }}
+        justifyContent="space-between"
+        spacing={{ xs: 3, md: 4 }}
+        gap={{ md: 6 }}
       >
-        <Typography variant="subtitle1" color="text.subText" mb={1}>
-          See which plan fits me
-        </Typography>
-        <Typography variant="overline" color="text.subText">
-          Starting from
-        </Typography>
-        <Typography
-          variant="h3"
-          fontFamily="var(--font-avantgarde), sans-serif"
-          fontWeight={600}
-          color="primary.main"
-          mb={0.5}
+        <Box sx={{ flex: 1, minWidth: 0, maxWidth: 820 }}>
+          <Typography variant="overline" color="primary.main" fontWeight={600} display="block" mb={1}>
+            Plans start at $349
+          </Typography>
+          <Typography component="h2" sx={{ ...headingSx, mb: 1.5 }}>
+            Pay a one-time upfront fee. Pay the big fee only when you&apos;re placed.
+          </Typography>
+          <Typography sx={{ ...bodySx, color: 'text.subText' }}>
+            Every plan follows the same promise: a single upfront fee to fund real work — daily
+            applications, prep, and marketing — and a success fee due only once you land the offer. No
+            placement, no big bill.
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: { xs: 'center', md: 'flex-end' },
+            width: { xs: '100%', md: 'auto' },
+          }}
         >
-          $349 upfront
-        </Typography>
-        <Typography sx={{ ...bodySx, color: 'text.subText', mb: 3 }}>
-          + success fee, due only on placement
-        </Typography>
-        <Button variant="filled" onClick={onScrollToForm} sx={primaryCtaSx}>
-          Get my free review
-        </Button>
-      </Box>
+          <Button
+            variant="filled"
+            onClick={onScrollToForm}
+            sx={{ ...primaryCtaSx, width: { xs: '100%', sm: 'auto' } }}
+          >
+            Get my free review
+          </Button>
+        </Box>
+      </Stack>
     </AnimatedSection>
   );
 }
 
-export function ClosingCtaSection({ onScrollToForm }) {
+export function ClosingCtaSection({ onScrollToForm, sectionRef }) {
   return (
     <AnimatedSection sx={{ px: { xs: 2, sm: 3, md: 4 }, pb: { xs: 4, md: 8 } }}>
       <Box
+        ref={sectionRef}
         sx={{
           maxWidth: 1200,
           mx: 'auto',

@@ -25,16 +25,16 @@ export const EMPTY_ENROLL_FORM = {
 };
 
 export const ENROLL_HERO_STATS = [
-  { value: '~100', label: 'Placed' },
+  { value: '850+', label: 'Placed' },
   { value: '30–40', label: 'Enrolled / mo' },
-  { value: '$0', label: "Until you're placed*" },
+  { value: '24h', label: 'Advisor callback' },
 ];
 
 export const ENROLL_SUCCESS_STATS = [
-  { value: '~100', label: 'Candidates placed' },
+  { value: '850+', label: 'Candidates placed' },
   { value: '30–40', label: 'New enrollments / month' },
   { value: '6', label: 'Visa categories served' },
-  { value: '$0', label: 'Success fee until placed*' },
+  { value: 'Free', label: 'Profile review' },
 ];
 
 export const ENROLL_PAIN_POINTS = [
@@ -72,7 +72,7 @@ export const ENROLL_PAIN_POINTS = [
     icon: '🚩',
     title: 'Every "guaranteed job" service feels like a scam',
     description:
-      "You've seen the ads. You don't trust anyone who wants the big check before doing any real work.",
+      "You've seen the ads. You don't trust anyone who promises results before doing any real work.",
   },
 ];
 
@@ -138,7 +138,7 @@ export const ENROLL_STEPS = [
     step: '4',
     title: 'Offer & onboarding',
     description:
-      "Support through negotiation and your first day. The success fee is due only once you're actually placed.",
+      "Support through negotiation and your first day — someone in your corner until you've actually started the job.",
   },
 ];
 
@@ -153,7 +153,7 @@ export const ENROLL_TESTIMONIALS = [
   },
   {
     quote:
-      "What sold me was the fee structure — I only owed the big fee after I actually had an offer. That's the opposite of every 'guaranteed placement' scam I'd seen online.",
+      "What sold me was that they actually did the work — daily applications, real prep, someone in my corner. That's the opposite of every 'guaranteed placement' scam I'd seen online.",
     initials: 'R',
     name: 'Rahul M.',
     role: 'OPT · Software Engineer role',
@@ -172,11 +172,11 @@ export const ENROLL_TESTIMONIALS = [
 export const ENROLL_FAQS = [
   {
     q: 'Is this legit, or is it a scam like the others?',
-    a: "A scam wants the full amount upfront and disappears. We charge a modest one-time fee to fund real, daily work on your search — the large success fee only becomes due once you're actually placed. That structure only makes sense if we're genuinely trying to get you hired.",
+    a: "A scam overpromises and underdelivers. We start with a free profile review and only take you on if we're confident we can help. Our team does real, daily work on your search — applications, prep, and marketing — because our model only works if you actually get placed.",
   },
   {
-    q: 'How much does it actually cost?',
-    a: "Plans start at $349 upfront, with a success fee due only on placement. The exact plan and fee depend on your timeline and goals — your free profile review call will lay out the number that applies to you, with nothing hidden.",
+    q: 'What happens on the free profile review call?',
+    a: "A real advisor looks at your resume, application history, and timeline — then tells you straight whether we can help and what the next steps would look like. No pressure, no obligation. You'll know exactly where you stand before deciding anything.",
   },
   {
     q: 'How long until I get placed?',
