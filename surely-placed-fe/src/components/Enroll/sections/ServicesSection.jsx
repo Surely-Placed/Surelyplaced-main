@@ -34,7 +34,13 @@ export function ServicesSection() {
                 <Typography fontSize="1.75rem" mb={1}>
                   {service.icon}
                 </Typography>
-                <Typography component="h3" variant="subtitle1" fontWeight={600} mb={1}>
+                <Typography
+                  component="h3"
+                  fontSize={{ xs: '1.0625rem', sm: '1.125rem' }}
+                  fontWeight={700}
+                  lineHeight={1.35}
+                  mb={1}
+                >
                   {service.title}
                 </Typography>
                 <Typography sx={{ ...bodySx, color: 'text.dark' }}>

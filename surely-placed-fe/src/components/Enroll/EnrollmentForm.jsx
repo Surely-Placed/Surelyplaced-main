@@ -247,7 +247,7 @@ export function EnrollmentForm({ id = 'enrollment-form', compact = false }) {
           {loading ? (
             <CircularProgress size={24} sx={{ color: 'extremes.light' }} />
           ) : (
-            'Get My Free Profile Review'
+            'Book a Call'
           )}
         </Button>
 
@@ -257,6 +257,16 @@ export function EnrollmentForm({ id = 'enrollment-form', compact = false }) {
       </Stack>
 
       <StatsRow stats={ENROLL_HERO_STATS} />
+      <Typography
+        variant="caption"
+        color="text.subText"
+        display="block"
+        textAlign="center"
+        mt={1}
+        sx={{ fontSize: '0.6875rem', lineHeight: 1.4 }}
+      >
+        T&amp;C apply.
+      </Typography>
     </Box>
   );
 }

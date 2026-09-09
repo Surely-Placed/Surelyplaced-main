@@ -47,7 +47,7 @@ export function StickyBottomCta({ heroRef, ctaRef, onScrollToForm }) {
           minHeight: 44,
         }}
       >
-        Get My Free Profile Review
+        Book a Call
       </Button>
     </Box>
   );

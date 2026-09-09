@@ -25,9 +25,9 @@ export const EMPTY_ENROLL_FORM = {
 };
 
 export const ENROLL_HERO_STATS = [
-  { value: '850+', label: 'Placed' },
-  { value: '30–40', label: 'Enrolled / mo' },
-  { value: '24h', label: 'Advisor callback' },
+  { value: '850+', label: 'Offers procured' },
+  { value: '20–30', label: 'Placements per month' },
+  { value: '45 days', label: 'Refund guarantee' },
 ];
 
 export const ENROLL_SUCCESS_STATS = [
@@ -40,7 +40,7 @@ export const ENROLL_SUCCESS_STATS = [
 export const ENROLL_PAIN_POINTS = [
   {
     icon: '📨',
-    title: '100+ applications, almost no replies',
+    title: 'Looking for tech jobs in the US ?',
     description:
       "You're applying every night after class or work, and the silence is louder than any rejection would be.",
   },

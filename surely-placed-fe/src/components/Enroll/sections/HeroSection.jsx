@@ -64,7 +64,7 @@ export function HeroSection({ onScrollToForm, sectionRef }) {
       </Grid>
       <Box textAlign="center" mt={4} sx={{ display: { xs: 'block', lg: 'none' } }}>
         <Button variant="filled" onClick={onScrollToForm} sx={primaryCtaSx}>
-          Get My Free Profile Review
+          Book a Call
         </Button>
       </Box>
     </AnimatedSection>
