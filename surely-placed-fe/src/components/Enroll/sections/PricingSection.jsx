@@ -85,7 +85,7 @@ export function ClosingCtaSection({ onScrollToForm, sectionRef }) {
         </Typography>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
           <Button variant="filled" onClick={onScrollToForm} sx={primaryCtaSx}>
-            Get My Free Profile Review
+            Book a Call
           </Button>
         </Stack>
       </Box>

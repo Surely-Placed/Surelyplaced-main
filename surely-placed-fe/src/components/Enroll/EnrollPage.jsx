@@ -22,10 +22,10 @@ export default function EnrollPage() {
   return (
     <>
       <HeroSection sectionRef={heroRef} onScrollToForm={scrollToForm} />
+      <TestimonialsSection />
       <PainPointsSection />
       <ServicesSection />
       <HowItWorksSection />
-      <TestimonialsSection />
       <PricingSection onScrollToForm={scrollToForm} />
       <FaqSection />
       <ClosingCtaSection sectionRef={closingCtaRef} onScrollToForm={scrollToForm} />
