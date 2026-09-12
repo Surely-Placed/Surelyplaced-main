@@ -5,6 +5,8 @@ import { Box } from '@mui/material';
 import ClientToastContainer from '@/components/ClientToastContainer';
 import { Providers } from './providers';
 import GoogleTagManager from '@/components/seo/GoogleTagManager';
+import MetaPixel from '@/components/seo/MetaPixel';
+import MetaPixelEnrollViewContent from '@/components/seo/MetaPixelEnrollViewContent';
 import JsonLd from '@/components/seo/JsonLd';
 import { ORGANIZATION_SCHEMA, SITE_NAME, SITE_URL, WEBSITE_SCHEMA } from '@/config/site';
 
@@ -65,6 +67,8 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <MetaPixel />
+        <MetaPixelEnrollViewContent />
         <JsonLd data={ORGANIZATION_SCHEMA} />
         <JsonLd data={WEBSITE_SCHEMA} />
       </head>
