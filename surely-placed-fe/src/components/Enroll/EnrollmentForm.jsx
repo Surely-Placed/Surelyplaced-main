@@ -18,6 +18,7 @@ import {
   ENROLL_SUCCESS_STATS,
   ENROLL_VISA_OPTIONS,
 } from '../../../mockData/Enroll';
+import { trackMetaEvent } from '@/components/seo/MetaPixel';
 import { submitEnrollmentRequest } from '@/lib/payments';
 import { bodySx, primaryCtaSx } from '../Webinar/styles';
 
@@ -103,6 +104,7 @@ export function EnrollmentForm({ id = 'enrollment-form', compact = false }) {
 
     try {
       await submitEnrollmentRequest(form);
+      trackMetaEvent('Lead');
       setSuccess(true);
     } catch (error) {
       const message = error.message || 'Something went wrong. Please try again.';
