@@ -1,0 +1,222 @@
+.landing-root {
+  --brand-blue: #2857c4;
+  --brand-teal: #38bdb1;
+  --brand-fog: #f2f2f2;
+  --blue-50: oklch(96% 0.02 258);
+  --blue-100: oklch(91% 0.05 258);
+  --blue-300: oklch(72% 0.13 258);
+  --blue-400: oklch(60% 0.17 258);
+  --blue-500: #2857c4;
+  --blue-600: oklch(46% 0.19 258);
+  --blue-700: oklch(38% 0.17 258);
+  --teal-50: oklch(96% 0.03 185);
+  --teal-200: oklch(82% 0.09 185);
+  --teal-300: oklch(74% 0.11 185);
+  --teal-700: oklch(46% 0.09 185);
+  --neutral-0: #ffffff;
+  --neutral-50: var(--brand-fog);
+  --neutral-100: oklch(93% 0.004 258);
+  --neutral-200: oklch(87% 0.006 258);
+  --neutral-300: oklch(76% 0.008 258);
+  --neutral-400: oklch(62% 0.01 258);
+  --neutral-600: oklch(38% 0.01 258);
+  --neutral-700: oklch(28% 0.01 258);
+  --neutral-800: oklch(18% 0.008 258);
+  --neutral-900: #0d0d0d;
+  --color-warning: oklch(75% 0.16 75);
+  --color-danger: oklch(55% 0.22 25);
+  --color-success: var(--teal-700);
+  --surface-page: var(--neutral-0);
+  --surface-card: var(--neutral-0);
+  --surface-sunken: var(--neutral-50);
+  --surface-inverse: var(--neutral-900);
+  --border-subtle: var(--neutral-200);
+  --border-default: var(--neutral-300);
+  --text-primary: var(--neutral-900);
+  --text-secondary: var(--neutral-600);
+  --text-tertiary: var(--neutral-400);
+  --text-on-brand: var(--neutral-0);
+  --text-on-dark: var(--neutral-0);
+  --text-on-dark-muted: var(--neutral-300);
+  --brand-primary: var(--brand-blue);
+  --brand-primary-hover: var(--blue-600);
+  --font-display: var(--font-avantgarde), sans-serif;
+  --font-body: var(--font-nexa), sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 18px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.12em;
+  --leading-snug: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgba(13, 13, 13, 0.06);
+  --shadow-md: 0 4px 12px rgba(13, 13, 13, 0.08);
+  --shadow-lg: 0 12px 32px rgba(13, 13, 13, 0.12);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 120ms;
+
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background: var(--surface-page);
+  -webkit-font-smoothing: antialiased;
+
+  a {
+    color: var(--teal-300);
+    text-decoration: none;
+    &:hover {
+      color: var(--teal-200);
+      text-decoration: underline;
+    }
+  }
+
+  @keyframes sp-pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(1.18, 1.45);
+      opacity: 0;
+    }
+  }
+  @keyframes sp-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  @keyframes sp-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes sp-glow {
+    0%,
+    100% {
+      opacity: 0.4;
+      transform: scale(1) rotate(0deg);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.12) rotate(6deg);
+    }
+  }
+  @keyframes sp-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.25;
+    }
+  }
+  @keyframes sp-sweep {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @keyframes sp-shine {
+    0% {
+      transform: translateX(-120%) skewX(-20deg);
+    }
+    60%,
+    100% {
+      transform: translateX(260%) skewX(-20deg);
+    }
+  }
+  @keyframes sp-rise {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes sp-nudge {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(4px);
+    }
+  }
+  @keyframes sp-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  @keyframes sp-drain {
+    from {
+      transform: scaleX(1);
+    }
+    to {
+      transform: scaleX(0.28);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
+  &[data-theme='apply'] {
+    background: var(--surface-sunken);
+    a {
+      color: var(--brand-primary);
+      &:hover {
+        color: var(--brand-primary-hover);
+      }
+    }
+  }
+}
+
+.landing-root .landing-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 650ms ease-out,
+    transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  &.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  &.landing-reveal--fill {
+    transform-origin: left;
+    transform: scaleX(0);
+    opacity: 1;
+    transition: transform 1.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+
+    &.is-visible {
+      transform: scaleX(1);
+    }
+  }
+}
