@@ -58,9 +58,11 @@ export function searchVisibility(result, mode) {
 }
 
 export function executiveSummary(result) {
-  const crit = result.fixes.filter((f) => f.s === 'critical');
-  const warn = result.fixes.filter((f) => f.s === 'warn');
-  const sorted = result.cats.slice().sort((a, b) => b.v - a.v);
+  const fixes = result.fixes ?? [];
+  const cats = result.cats ?? [];
+  const crit = fixes.filter((f) => f.s === 'critical');
+  const warn = fixes.filter((f) => f.s === 'warn');
+  const sorted = cats.slice().sort((a, b) => b.v - a.v);
   const risk = crit[0] ||
     warn[0] || {
       t: 'No critical blockers',
@@ -73,6 +75,10 @@ export function executiveSummary(result) {
       t: 'Tailor for each application',
       d: 'Re-run this check against every new job description you apply to.',
     };
-  const asset = sorted[0];
+  const asset = sorted[0] ?? {
+    label: 'Overall score',
+    v: result.score ?? 0,
+    note: 'Based on the checks we could run on your file',
+  };
   return { risk, win, asset };
 }
