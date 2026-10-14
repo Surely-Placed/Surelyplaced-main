@@ -96,35 +96,12 @@ export default function AtsScoreResult({ result, animate, onOpenLead }) {
     window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const mode = result.mode || 'match';
-  const unlocked = Boolean(result.unlocked);
-  const target = [result.role, result.company && `at ${result.company}`].filter(Boolean).join(' ');
-  const date = new Date().toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
-  const [vis, visColor] = searchVisibility(result, mode);
-  const { risk, win, asset } = executiveSummary(result);
-  const bandCls = bandClassFromScore(result.score);
-  const bandC = bandCls === 'critical' ? 'crit' : bandCls;
-
-  const kwTotal = result.kwTotal ?? result.kw?.length ?? 0;
-  const kwSorted = result.kw || [];
-  const lockedKw = result.locked?.keywords ?? 0;
-  const bullets = result.bullets || [];
-  const bulletsTotal = result.bulletsTotal ?? bullets.length;
-  const lockedBullets = result.locked?.bullets ?? 0;
-  const fixes = result.fixes || [];
-  const lockedPlan = result.locked?.planSteps ?? 0;
-  const matchedCount = result.unlocked
+  const kwTotal = result?.kwTotal ?? result?.kw?.length ?? 0;
+  const matchedCount = result?.unlocked
     ? result.matched?.length ?? 0
-    : result.matchedCount ?? 0;
-  const missingCount = result.unlocked
-    ? result.missing?.length ?? 0
-    : result.missingCount ?? 0;
+    : result?.matchedCount ?? 0;
   const cov =
-    result.coveragePct ??
+    result?.coveragePct ??
     (kwTotal ? Math.round((matchedCount / kwTotal) * 100) : 0);
 
   useEffect(() => {
@@ -169,6 +146,31 @@ export default function AtsScoreResult({ result, animate, onOpenLead }) {
   }, [result, animate, reduced, cov]);
 
   if (!result) return null;
+
+  const mode = result.mode || 'match';
+  const unlocked = Boolean(result.unlocked);
+  const target = [result.role, result.company && `at ${result.company}`].filter(Boolean).join(' ');
+  const date = new Date().toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+  const [vis, visColor] = searchVisibility(result, mode);
+  const { risk, win, asset } = executiveSummary(result);
+  const bandCls = bandClassFromScore(result.score);
+  const bandC = bandCls === 'critical' ? 'crit' : bandCls;
+
+  const kwSorted = result.kw || [];
+  const lockedKw = result.locked?.keywords ?? 0;
+  const bullets = result.bullets || [];
+  const bulletsTotal = result.bulletsTotal ?? bullets.length;
+  const lockedBullets = result.locked?.bullets ?? 0;
+  const fixes = result.fixes || [];
+  const lockedPlan = result.locked?.planSteps ?? 0;
+  const missingCount = result.unlocked
+    ? result.missing?.length ?? 0
+    : result.missingCount ?? 0;
+  const cats = result.cats ?? [];
 
   const secItem = (k, label) => {
     const v = result.found?.[k];
@@ -324,7 +326,7 @@ export default function AtsScoreResult({ result, animate, onOpenLead }) {
               </p>
             </div>
             <div className="cats">
-              {result.cats.map((c) => {
+              {cats.map((c) => {
                 const [sc, sl] = stOf(c.v);
                 return (
                   <div key={c.k} className="cat">
