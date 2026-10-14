@@ -12,6 +12,10 @@ export const navLinks = [
     link: '/webinar',
   },
   {
+    text: 'ATS Checker',
+    link: '/resume-ats',
+  },
+  {
     text: 'Our Story',
     link: '/our-story',
   },

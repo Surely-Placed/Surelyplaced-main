@@ -9,6 +9,7 @@ const staticRoutes = [
   '/careers',
   '/webinar',
   '/book-a-call',
+  '/resume-ats',
   '/privacy-policy',
   '/terms-and-conditions',
   '/refund-cancellation-policy',

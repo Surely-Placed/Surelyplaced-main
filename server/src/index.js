@@ -11,6 +11,7 @@ import webhooksRouter from './routes/webhooks.js';
 import adminRouter from './routes/admin.js';
 import webinarsRouter from './routes/webinars.js';
 import enrollmentRequestsRouter from './routes/enrollmentRequests.js';
+import atsRouter from './routes/ats.js';
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -90,6 +91,7 @@ app.use(express.json({ limit: '1mb' }));
 app.use('/api/payments', paymentsRouter);
 app.use('/api/webinars', webinarsRouter);
 app.use('/api/enrollment-requests', enrollmentRequestsRouter);
+app.use('/api/ats', atsRouter);
 app.use('/api/admin', adminRouter);
 
 // Public assets for transactional emails (logo, etc.)

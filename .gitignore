@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ATS marketing reference (not for production)
+surely-placed-fe/reference/
+surely-placed-fe/Surely Placed ATS Checker.html
