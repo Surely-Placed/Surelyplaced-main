@@ -29,3 +29,16 @@ export async function scanAtsResume({ file, resumeText, mode, company, role, jd 
   }
   return data;
 }
+
+export async function submitAtsLead(payload) {
+  const response = await fetch(`${getApiUrl()}/api/ats/lead`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Could not unlock report (${response.status})`);
+  }
+  return data;
+}

@@ -4,6 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import Link from 'next/link';
 import { scanAtsResume } from '@/lib/atsScan';
 import { ATS_FAQ, ATS_INCLUDES, ATS_SOURCES } from '../../../mockData/AtsResume/content';
+import AtsLeadModal from './AtsLeadModal';
 import AtsLoader from './AtsLoader';
 import AtsScoreResult from './AtsScoreResult';
 import { buildLoaderData } from './loaderUtils';
@@ -46,9 +47,12 @@ export default function AtsResumePage({ className = '', fontVars = {} }) {
   const [loaderData, setLoaderData] = useState(null);
 
   const [scanResult, setScanResult] = useState(null);
-  const [scanMeta, setScanMeta] = useState(null);
+  const [scanId, setScanId] = useState('');
   const [animateGauge, setAnimateGauge] = useState(false);
   const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [apiReady, setApiReady] = useState(false);
+  const [leadOpen, setLeadOpen] = useState(false);
+  const [leadPick, setLeadPick] = useState(null);
 
   const apiResultRef = useRef(null);
   const loaderDoneRef = useRef(false);
@@ -69,11 +73,11 @@ export default function AtsResumePage({ className = '', fontVars = {} }) {
     tryShowResults();
   }, [tryShowResults]);
 
-  const skipLoader = useCallback(() => {
-    loaderDoneRef.current = true;
-    setLoaderOpen(false);
-    tryShowResults();
-  }, [tryShowResults]);
+  const openLead = useCallback((pick) => {
+    setLeadPick(pick === 'review' || pick === 'revamp' ? pick : null);
+    setLeadOpen(true);
+    document.body.style.overflow = 'hidden';
+  }, []);
 
   const clearFile = () => {
     setFile(null);
@@ -111,25 +115,16 @@ export default function AtsResumePage({ className = '', fontVars = {} }) {
       return;
     }
 
-    const meta = {
-      mode,
-      company: company.trim(),
-      role: role.trim(),
-      fileName: file ? fileName : hasPaste || pasted ? 'Pasted text' : fileName,
-    };
-    setScanMeta(meta);
     setScanResult(null);
+    setScanId('');
     setAnimateGauge(false);
+    setApiReady(false);
     apiResultRef.current = null;
     loaderDoneRef.current = false;
 
-    const previewText = hasPaste ? pasted : pasted.length >= 40 ? pasted : '';
     setLoaderData(
       buildLoaderData({
-        mode,
-        jd: jd.trim(),
-        resumeText: previewText,
-        fileName: file?.name || fileName,
+        fileName: file?.name || (hasPaste ? 'Pasted text' : fileName),
       })
     );
     setLoaderOpen(true);
@@ -140,25 +135,40 @@ export default function AtsResumePage({ className = '', fontVars = {} }) {
         file: file && !hasPaste ? file : null,
         resumeText: hasPaste ? pasted : pasted.length >= 40 ? pasted : undefined,
         mode,
-        company: meta.company,
-        role: meta.role,
+        company: company.trim(),
+        role: role.trim(),
         jd: jd.trim(),
       });
       apiResultRef.current = data;
+      setScanId(data.scanId || '');
+      setApiReady(true);
       window.dispatchEvent(
         new CustomEvent('sp:ats_scan', {
-          detail: { score: data.score, mode, role: meta.role, company: meta.company },
+          detail: {
+            score: data.score,
+            mode,
+            role: role.trim(),
+            company: company.trim(),
+          },
         })
       );
       tryShowResults();
     } catch (err) {
       setLoaderOpen(false);
       loaderDoneRef.current = false;
+      setApiReady(false);
       setError(err.message || 'Something went wrong. Try again or paste your resume text.');
     } finally {
       setSubmitting(false);
     }
   };
+
+  const onLoaderError = useCallback((msg) => {
+    setLoaderOpen(false);
+    loaderDoneRef.current = false;
+    setApiReady(false);
+    setError(msg);
+  }, []);
 
   return (
     <div className={`ats-page ${className}`.trim()} style={fontVars}>
@@ -269,7 +279,7 @@ export default function AtsResumePage({ className = '', fontVars = {} }) {
                 </span>
                 <span>
                   <i className="dot" />
-                  Processed securely, not stored
+                  Scored on our server · not stored
                 </span>
               </div>
             </div>
@@ -403,8 +413,8 @@ export default function AtsResumePage({ className = '', fontVars = {} }) {
           </div>
         </section>
 
-        {scanResult && scanMeta ? (
-          <AtsScoreResult result={scanResult} scanMeta={scanMeta} animate={animateGauge} />
+        {scanResult ? (
+          <AtsScoreResult result={scanResult} animate={animateGauge} onOpenLead={openLead} />
         ) : null}
 
         <section className="block" id="includes" aria-labelledby="inc-title" style={{ paddingTop: 20 }}>
@@ -620,15 +630,40 @@ export default function AtsResumePage({ className = '', fontVars = {} }) {
               <span className="eyebrow">Expert review &amp; full revamp</span>
               <h2 id="revamp-title">Your score is the diagnosis. The revamp is the fix.</h2>
               <p className="lede">
-                When you want a person on it, a Surely Placed resume expert reviews or rebuilds your resume until it&apos;s ATS-ready.
+                When you want a person on it, a Surely Placed resume expert reviews your resume line by line, or rebuilds it with you until it&apos;s ATS-ready for the roles you want.
               </p>
             </div>
+            <div className="steps">
+              <div className="stepc pre-able">
+                <span className="k">STEP 1 · REVIEW</span>
+                <h3>We read it like a recruiter and a parser</h3>
+                <p>
+                  Your expert checks parsing, keyword gaps against your target JDs, and how your story reads in the first few seconds.
+                </p>
+              </div>
+              <div className="stepc pre-able">
+                <span className="k">STEP 2 · REBUILD</span>
+                <h3>Rewritten for your stack and role</h3>
+                <ul>
+                  <li>ATS-safe, single-column structure</li>
+                  <li>Keywords mapped to your target roles</li>
+                  <li>Bullets rewritten around measurable impact</li>
+                  <li>Positioned clearly for your visa status</li>
+                </ul>
+              </div>
+              <div className="stepc pre-able">
+                <span className="k">STEP 3 · READY</span>
+                <h3>Back-and-forth until it&apos;s right</h3>
+                <p>
+                  Revisions with your expert until it&apos;s ready to send, plus versions tuned for the role families you apply to most.
+                </p>
+              </div>
+            </div>
             <div className="offer pre-able">
-              <p>Want hands-on help after your score? Talk to our team about a resume revamp.</p>
-              {/* TODO: dedicated ATS lead capture — enrollment flow requires full apply wizard fields */}
-              <Link className="btn btn-primary" href="/apply">
+              <p>Want us to run the applications too? The revamp is step one of every Surely Placed plan.</p>
+              <button type="button" className="btn btn-primary" onClick={() => openLead('revamp')}>
                 Book my resume revamp
-              </Link>
+              </button>
             </div>
           </div>
         </section>
@@ -695,7 +730,37 @@ export default function AtsResumePage({ className = '', fontVars = {} }) {
         </a>
       </div>
 
-      <AtsLoader open={loaderOpen} loaderData={loaderData} onFinish={onLoaderFinish} onSkip={skipLoader} />
+      <AtsLoader
+        open={loaderOpen}
+        loaderData={loaderData}
+        apiReady={apiReady}
+        onFinish={onLoaderFinish}
+        onError={onLoaderError}
+      />
+
+      <AtsLeadModal
+        open={leadOpen}
+        pick={leadPick}
+        scanId={scanId}
+        leadContext={
+          scanResult
+            ? {
+                score: scanResult.score,
+                role: scanResult.role,
+                company: scanResult.company,
+                mode: scanResult.mode,
+                missing: scanResult.missing,
+                fileName: scanResult.fileName,
+              }
+            : null
+        }
+        onClose={() => setLeadOpen(false)}
+        onUnlocked={(full) => {
+          setScanResult(full);
+          setAnimateGauge(false);
+          requestAnimationFrame(() => setAnimateGauge(true));
+        }}
+      />
 
       {sourcesOpen ? (
         <div className="modal" role="dialog" aria-modal="true" aria-labelledby="src-title" onClick={() => setSourcesOpen(false)}>
