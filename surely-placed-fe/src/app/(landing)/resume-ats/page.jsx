@@ -50,7 +50,7 @@ const jsonLd = {
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Any (web browser)',
       description:
-        'Free ATS resume checker that scores your resume against a specific company and job description, or a general ATS readiness check. Returns an instant ATS score out of 100.',
+        'Free ATS resume checker that scores your resume against a specific company and job description and produces a full report: keyword gap table, ATS parse view, section audit, bullet impact audit and a prioritized action plan.',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
       provider: { '@id': `${SITE_URL}/#org` },
     },
@@ -79,8 +79,8 @@ const jsonLd = {
         },
         {
           '@type': 'HowToStep',
-          name: 'Read your score',
-          text: 'Review your ATS score out of 100, the band label and what it means for recruiter search.',
+          name: 'Read your report',
+          text: 'Review your ATS score, keyword gaps, parse view, bullet audit and action plan.',
         },
       ],
     },

@@ -34,7 +34,7 @@ export const ATS_FAQ = [
   {
     question: 'Is the ATS resume checker free?',
     answer:
-      'Yes. Your ATS score is free with no sign-up. Expert human review and a full resume revamp are paid services through Surely Placed if you want hands-on help.',
+      'Yes. Your score and core report are free with no sign-up. The full report, with every missing keyword, the bullet audit and the complete action plan, is free with your email. An expert human review and the full resume revamp are paid services.',
   },
   {
     question: 'What is a good ATS score?',

@@ -1,26 +1,30 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { LOADER_STAGES, LOADER_TIPS, LOADER_WORDS } from './loaderUtils';
+import { LOADER_STAGES, LOADER_TIPS, LOADER_TIMEOUT_MS, LOADER_WORDS } from './loaderUtils';
 
-function escapeHtml(s) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-export default function AtsLoader({ open, loaderData, onFinish, onSkip }) {
+export default function AtsLoader({ open, loaderData, apiReady, onFinish, onError }) {
   const arenaRef = useRef(null);
   const rootRef = useRef(null);
   const finishedRef = useRef(false);
   const rafRef = useRef(null);
+  const animationDoneRef = useRef(false);
+  const apiReadyRef = useRef(false);
+  const finishRef = useRef(() => {});
+
+  useEffect(() => {
+    apiReadyRef.current = apiReady;
+    if (apiReady && animationDoneRef.current) {
+      finishRef.current();
+    }
+  }, [apiReady]);
 
   useEffect(() => {
     if (!open || !loaderData) return undefined;
 
     finishedRef.current = false;
+    animationDoneRef.current = false;
+    apiReadyRef.current = apiReady;
     document.body.style.overflow = 'hidden';
     const reduced =
       typeof window !== 'undefined' &&
@@ -30,23 +34,13 @@ export default function AtsLoader({ open, loaderData, onFinish, onSkip }) {
     const arena = arenaRef.current;
     if (!arena) return undefined;
 
-    const hl = loaderData.matched.filter((t) => !t.includes('&')).sort((a, b) => b.length - a.length);
-    let pre = escapeHtml(
-      loaderData.lines
-        .slice(0, 22)
-        .map((l) => (l.length > 52 ? `${l.slice(0, 50)}…` : l))
-        .join('\n')
-    );
-    hl.forEach((t) => {
-      pre = pre.replace(new RegExp(`(${escapeHtml(t)})`, 'gi'), '<mark>$1</mark>');
-    });
     const preEl = rootRef.current?.querySelector('#ld-pre');
-    if (preEl) preEl.innerHTML = pre;
+    if (preEl) {
+      preEl.textContent = loaderData.lines.join('\n');
+    }
 
-    const mqw = (loaderData.kwTerms.length ? loaderData.kwTerms : loaderData.matched)
-      .concat(['ATS', 'Keywords', 'Recruiter', 'Resume'])
-      .map((t) => t.toUpperCase());
-    const mrow = `${mqw.join(' · ')} · `;
+    const mqw = loaderData.kwTerms.map((t) => t.toUpperCase());
+    const mrow = `${mqw.concat(['ATS', 'Keywords', 'Recruiter', 'Resume']).join(' · ')} · `;
     rootRef.current?.querySelectorAll('.mq-row span').forEach((x) => {
       x.textContent = mrow + mrow;
     });
@@ -73,11 +67,6 @@ export default function AtsLoader({ open, loaderData, onFinish, onSkip }) {
     let toks = loaderData.matched.map((t) => ({ t, f: true })).concat(
       loaderData.missing.map((t) => ({ t, f: false }))
     );
-    if (loaderData.mode !== 'match') {
-      ['experience', 'education', 'skills', 'summary'].forEach((k) => {
-        toks.push({ t: `${k} heading`, f: loaderData.matched.includes(k) });
-      });
-    }
     toks = toks.sort(() => Math.random() - 0.5).slice(0, 26);
 
     const T = reduced ? 900 : Math.max(5200, Math.min(7200, 3800 + toks.length * 140));
@@ -87,6 +76,50 @@ export default function AtsLoader({ open, loaderData, onFinish, onSkip }) {
     toks.forEach((k, i) => {
       k.at = (spawnStart + ((spawnEnd - spawnStart) * i) / Math.max(1, toks.length - 1)) * T;
     });
+
+    const timeoutId = window.setTimeout(() => {
+      if (!apiReadyRef.current && !finishedRef.current) {
+        finishedRef.current = true;
+        document.body.style.overflow = '';
+        onError?.('The scan is taking too long. Check your connection and try again.');
+      }
+    }, LOADER_TIMEOUT_MS);
+
+    function finish() {
+      if (finishedRef.current) return;
+      if (!apiReadyRef.current) return;
+      finishedRef.current = true;
+      window.clearTimeout(timeoutId);
+      const bar = rootRef.current?.querySelector('#ld-bar');
+      if (bar) bar.style.width = '100%';
+      LOADER_STAGES.forEach((_, i) => {
+        const s = rootRef.current?.querySelector(`#lds-${i}`);
+        if (s) s.className = 'done';
+      });
+      live.forEach((el) => el.remove());
+      live.clear();
+      const pct = rootRef.current?.querySelector('#ld-pct');
+      if (pct) pct.textContent = '100';
+      const dn = document.createElement('div');
+      dn.className = 'ld-done';
+      dn.innerHTML = '<span>Report<br>ready.</span>';
+      rootRef.current?.appendChild(dn);
+      setTimeout(() => {
+        document.body.style.overflow = '';
+        dn.remove();
+        arena.querySelectorAll('.tok, .spark, .pop').forEach((e) => e.remove());
+        onFinish?.();
+      }, reduced ? 150 : 750);
+    }
+
+    finishRef.current = finish;
+
+    function tryComplete() {
+      if (finishedRef.current) return;
+      if (animationDoneRef.current && apiReadyRef.current) {
+        finish();
+      }
+    }
 
     function ar() {
       return arena.getBoundingClientRect();
@@ -113,31 +146,6 @@ export default function AtsLoader({ open, loaderData, onFinish, onSkip }) {
       setTimeout(() => b?.classList.remove('bump'), 150);
       xp += k.f ? 20 : 8;
       if (xpEl) xpEl.textContent = String(xp);
-    }
-
-    function finish() {
-      if (finishedRef.current) return;
-      finishedRef.current = true;
-      const bar = rootRef.current?.querySelector('#ld-bar');
-      if (bar) bar.style.width = '100%';
-      LOADER_STAGES.forEach((_, i) => {
-        const s = rootRef.current?.querySelector(`#lds-${i}`);
-        if (s) s.className = 'done';
-      });
-      live.forEach((el) => el.remove());
-      live.clear();
-      const pct = rootRef.current?.querySelector('#ld-pct');
-      if (pct) pct.textContent = '100';
-      const dn = document.createElement('div');
-      dn.className = 'ld-done';
-      dn.innerHTML = '<span>Score<br>ready.</span>';
-      rootRef.current?.appendChild(dn);
-      setTimeout(() => {
-        document.body.style.overflow = '';
-        dn.remove();
-        arena.querySelectorAll('.tok, .spark, .pop').forEach((e) => e.remove());
-        onFinish?.();
-      }, reduced ? 150 : 750);
     }
 
     function spawn(k) {
@@ -187,9 +195,6 @@ export default function AtsLoader({ open, loaderData, onFinish, onSkip }) {
           if (!live.has(el)) return;
           live.delete(el);
           anim.cancel();
-          const ra = ar();
-          const x = ev.clientX - ra.left;
-          const y = ev.clientY - ra.top;
           const now = performance.now();
           combo = now - lastTap < 1300 ? Math.min(combo + 1, 9) : 1;
           lastTap = now;
@@ -207,8 +212,16 @@ export default function AtsLoader({ open, loaderData, onFinish, onSkip }) {
 
     function tick(now) {
       if (finishedRef.current) return;
-      const el = now - t0 + bonus;
-      const p = Math.min(1, el / T);
+      const elapsed = now - t0 + bonus;
+      let p = Math.min(1, elapsed / T);
+
+      if (p >= 1 && !animationDoneRef.current) {
+        animationDoneRef.current = true;
+        p = 1;
+        tryComplete();
+        if (apiReadyRef.current) return;
+      }
+
       const bar = rootRef.current?.querySelector('#ld-bar');
       if (bar) bar.style.width = `${(p * 100).toFixed(1)}%`;
       const si = Math.min(LOADER_STAGES.length - 1, Math.floor(p * LOADER_STAGES.length));
@@ -217,7 +230,7 @@ export default function AtsLoader({ open, loaderData, onFinish, onSkip }) {
       const pct = rootRef.current?.querySelector('#ld-pct');
       if (pct) pct.textContent = String(Math.round(p * 100));
       const tip = rootRef.current?.querySelector('#ld-tip');
-      if (tip) tip.textContent = LOADER_TIPS[Math.floor(el / 1700) % LOADER_TIPS.length];
+      if (tip) tip.textContent = LOADER_TIPS[Math.floor(elapsed / 1700) % LOADER_TIPS.length];
       if (si !== curStage) {
         curStage = si;
         const wd = rootRef.current?.querySelector('#ld-word');
@@ -237,27 +250,34 @@ export default function AtsLoader({ open, loaderData, onFinish, onSkip }) {
         else if (i === si) s.className = 'on';
         else s.className = '';
       });
-      if (!reduced) {
-        while (next < toks.length && toks[next].at <= el) {
+      if (!reduced && p < 1) {
+        while (next < toks.length && toks[next].at <= elapsed) {
           spawn(toks[next]);
           next += 1;
         }
       }
-      if (p >= 1 && (live.size === 0 || el > T + 1600)) {
-        finish();
-        return;
+      if (animationDoneRef.current && (live.size === 0 || elapsed > T + 1600)) {
+        animationDoneRef.current = true;
+        tryComplete();
+        if (finishedRef.current) return;
       }
+      if (!animationDoneRef.current && p >= 1 && (live.size === 0 || elapsed > T + 1600)) {
+        animationDoneRef.current = true;
+        tryComplete();
+      }
+      if (finishedRef.current) return;
       rafRef.current = requestAnimationFrame(tick);
     }
 
     rafRef.current = requestAnimationFrame(tick);
 
     return () => {
+      window.clearTimeout(timeoutId);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       document.body.style.overflow = '';
       finishedRef.current = true;
     };
-  }, [open, loaderData, onFinish]);
+  }, [open, loaderData, onFinish, onError]);
 
   if (!open) return null;
 
@@ -311,15 +331,11 @@ export default function AtsLoader({ open, loaderData, onFinish, onSkip }) {
           </div>
           <div className="ld-bin found" id="bin-f">
             <small>Found</small>
-            <b id="bin-f-n">
-              0
-            </b>
+            <b id="bin-f-n">0</b>
           </div>
           <div className="ld-bin missing" id="bin-m">
             <small>Missing</small>
-            <b id="bin-m-n">
-              0
-            </b>
+            <b id="bin-m-n">0</b>
           </div>
         </div>
         <div className="ld-bottom">
@@ -344,9 +360,6 @@ export default function AtsLoader({ open, loaderData, onFinish, onSkip }) {
           <span className="ld-tip" id="ld-tip">
             Beat the bot.
           </span>
-          <button type="button" className="ld-skip" onClick={onSkip}>
-            Skip to score
-          </button>
         </div>
       </div>
     </div>

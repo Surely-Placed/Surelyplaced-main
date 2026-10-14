@@ -359,21 +359,227 @@ export function analyze(resume, o) {
   const roleHit = o.role ? hasTerm(text, norm(o.role).trim()) : true;
   if (o.mode === 'match' && o.role && !roleHit) kwScore = Math.max(0, kwScore - 8);
   const W = o.mode === 'match' ? [0.4, 0.15, 0.15, 0.1, 0.1, 0.1] : [0.2, 0.2, 0.2, 0.15, 0.15, 0.1];
+  const contactNote = parseLow
+    ? `Only ${words} words could be read`
+    : [email && 'Email', phone && 'Phone', linkedin && 'LinkedIn', site && 'Portfolio']
+        .filter(Boolean)
+        .join(' · ') || 'No contact details found';
   const cats = [
-    { k: 'kw', label: o.mode === 'match' ? 'Keyword match' : 'Skills coverage', v: kwScore },
-    { k: 'sec', label: 'Standard sections', v: secScore },
-    { k: 'imp', label: 'Measurable impact', v: impactScore },
-    { k: 'con', label: 'Contact & parsability', v: parseLow ? Math.min(contactScore, 30) : contactScore },
-    { k: 'lang', label: 'Action language', v: langScore },
-    { k: 'len', label: 'Length & readability', v: lenScore },
+    {
+      k: 'kw',
+      label: o.mode === 'match' ? 'Keyword match' : 'Skills coverage',
+      v: kwScore,
+      note:
+        o.mode === 'match'
+          ? `${matched.length} of ${kw.length} job keywords found`
+          : `${matched.length} recognized skills`,
+      why: "Recruiters search by keyword. Missing terms mean you don't show up.",
+    },
+    {
+      k: 'sec',
+      label: 'Standard sections',
+      v: secScore,
+      note: `${['experience', 'education', 'skills'].filter((k) => found[k] === 1).length} of 3 core headings detected`,
+      why: 'Parsers map content by heading. Non-standard labels can scramble fields.',
+    },
+    {
+      k: 'imp',
+      label: 'Measurable impact',
+      v: impactScore,
+      note: `${quant} of ${bullets.length} bullets include a number`,
+      why: 'Numbers prove scope and results in the few seconds a human reads.',
+    },
+    {
+      k: 'con',
+      label: 'Contact & parsability',
+      v: parseLow ? Math.min(contactScore, 30) : contactScore,
+      note: contactNote,
+      why: "If the ATS can't read your contact info, a recruiter can't reach you.",
+    },
+    {
+      k: 'lang',
+      label: 'Action language',
+      v: langScore,
+      note: `${verbStart} of ${bullets.length} bullets open with a strong verb`,
+      why: 'Strong verbs read as ownership; passive phrasing reads as task lists.',
+    },
+    {
+      k: 'len',
+      label: 'Length & readability',
+      v: lenScore,
+      note: `${words} words · about ${Math.max(0.5, Math.round((words / 500) * 2) / 2)} page${words > 750 ? 's' : ''}`,
+      why: 'One to two pages keeps key details visible in a fast skim.',
+    },
   ];
   let score = Math.round(cats.reduce((a, c, i) => a + c.v * W[i], 0));
   if (parseLow) score = Math.min(score, 35);
-  return { score, matched, missing, found, lines, kw };
+
+  const fixes = [];
+  if (parseLow) {
+    fixes.push({
+      s: 'critical',
+      t: "Most of your file couldn't be read",
+      d: `We extracted only ${words} words. Image-based PDFs, text boxes and multi-column templates often lose text in an ATS. Export a single-column, text-based version.`,
+    });
+  }
+  if (o.mode === 'match' && missing.length) {
+    fixes.push({
+      s: 'critical',
+      t: `Add missing job keywords (${missing.length})`,
+      d: `Work these into your skills and experience where they're true: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''}.`,
+    });
+  }
+  if (o.mode === 'match' && o.role && !roleHit) {
+    fixes.push({
+      s: 'critical',
+      t: `Use the title "${o.role}" on your resume`,
+      d: 'Recruiters often search by exact job title. Put it in your headline or summary if it matches your experience.',
+    });
+  }
+  if (!email || !phone) {
+    fixes.push({
+      s: 'critical',
+      t: 'Contact details missing or unreadable',
+      d: 'Put your email and phone in the main body at the top, not in a page header, footer or image.',
+    });
+  }
+  if (found.experience < 1) {
+    fixes.push({
+      s: 'critical',
+      t: 'Add a clear "Experience" heading',
+      d: 'Use a standard heading like "Experience" or "Work Experience" so the ATS maps your jobs correctly.',
+    });
+  }
+  if (found.skills < 1) {
+    fixes.push({
+      s: 'warn',
+      t: 'Add a "Skills" section',
+      d: 'A dedicated skills list is the easiest place for an ATS and a recruiter to find your tools and stack.',
+    });
+  }
+  if (found.education < 1) {
+    fixes.push({
+      s: 'warn',
+      t: 'Add an "Education" heading',
+      d: 'Degrees are a common filter, especially for new grads and visa-sponsored roles.',
+    });
+  }
+  if (qRatio < 0.5 && bullets.length) {
+    fixes.push({
+      s: 'warn',
+      t: 'Put numbers in more bullets',
+      d: `Only ${quant} of ${bullets.length} bullets show a result. Add scale, %, $, time saved or users served.`,
+    });
+  }
+  if (weakHits.length) {
+    fixes.push({
+      s: 'warn',
+      t: 'Replace passive phrasing',
+      d: `Swap "${weakHits[0]}" for an action verb such as built, led, reduced or shipped.`,
+    });
+  }
+  if (vRatio < 0.6 && bullets.length > 2) {
+    fixes.push({
+      s: 'warn',
+      t: 'Start bullets with action verbs',
+      d: 'Open each bullet with what you did: Designed, Automated, Migrated, Scaled.',
+    });
+  }
+  if (!linkedin) {
+    fixes.push({
+      s: 'warn',
+      t: 'Add your LinkedIn URL',
+      d: 'Recruiters cross-check profiles; a custom linkedin.com/in/ URL in your header helps.',
+    });
+  }
+  if (found.summary < 1) {
+    fixes.push({
+      s: 'warn',
+      t: 'Add a two-line summary',
+      d: 'A short headline with your target title and core stack helps both the parser and the skim.',
+    });
+  }
+  if (words > 1100) {
+    fixes.push({
+      s: 'warn',
+      t: 'Trim to two pages',
+      d: `At ${words} words, key details get buried. Cut older or less relevant roles.`,
+    });
+  }
+  if (pron > 3) {
+    fixes.push({
+      s: 'warn',
+      t: 'Drop first-person pronouns',
+      d: 'Resumes read better without "I" and "my" in bullets.',
+    });
+  }
+  if (o.mode === 'match' && kwScore >= 75) {
+    fixes.push({
+      s: 'good',
+      t: 'Strong keyword alignment',
+      d: `You match ${matched.length} of ${kw.length} terms from this job.`,
+    });
+  }
+  if (qRatio >= 0.5) {
+    fixes.push({
+      s: 'good',
+      t: 'Impact is quantified',
+      d: 'Most of your bullets show measurable results.',
+    });
+  }
+  if (email && phone && linkedin) {
+    fixes.push({
+      s: 'good',
+      t: 'Contact details are clean',
+      d: 'Email, phone and LinkedIn were all extracted.',
+    });
+  }
+
+  const nameLine =
+    lines.find(
+      (l) =>
+        l.length < 40 &&
+        !/[@\d|]/.test(l) &&
+        l.split(/\s+/).length <= 5 &&
+        !Object.values(SEC).some((r) => r.test(l))
+    ) || '';
+  const TITLE_RX =
+    /\b(engineer|developer|analyst|scientist|manager|intern|consultant|architect|administrator|specialist|associate|lead|designer|programmer|technician|coordinator)\b/i;
+  const titles = [
+    ...new Set(
+      lines
+        .filter(
+          (l) => l.length < 90 && TITLE_RX.test(l) && !/^[•\-*▪●◦–·]/.test(l)
+        )
+        .map((l) => l.split(/[|,–—]| - /)[0].trim())
+        .filter((l) => l.length < 50)
+    ),
+  ].slice(0, 3);
+  const skillsFound = DICT.filter((k) => hasTerm(text, k));
+  const parsed = {
+    Name: nameLine,
+    Email: email,
+    Phone: phone,
+    LinkedIn: linkedin,
+    Titles: titles.join(' · '),
+    Skills: skillsFound.slice(0, 14).join(', '),
+  };
+
+  return {
+    score,
+    cats,
+    kw,
+    matched,
+    missing,
+    fixes,
+    parsed,
+    found,
+    bullets,
+    words,
+    lines,
+  };
 }
 
 export function scanResume(resumeText, options) {
-  const r = analyze(resumeText, options);
-  const [band, , message] = bandOf(r.score);
-  return { score: r.score, band, message };
+  return analyze(resumeText, options);
 }

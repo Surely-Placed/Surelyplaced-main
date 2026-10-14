@@ -344,3 +344,30 @@ export async function sendWaitlistOpenedEmails({ recipients, webinar }) {
     });
   }
 }
+
+/** Internal notification when someone unlocks an ATS report / selects add-ons. */
+export async function sendAtsLeadNotification(lead, reportMeta = {}) {
+  const transport = getTransporter();
+  const to = config.smtp.webinarNotify || config.smtp.to;
+  if (!transport || !to) return;
+
+  const lines = [
+    `Name: ${lead.name}`,
+    `Email: ${lead.email}`,
+    `Phone: ${lead.phone || '—'}`,
+    `Visa: ${lead.visa || '—'}`,
+    `Add-ons: ${lead.addons?.length ? lead.addons.join(', ') : 'none'}`,
+    `ATS score: ${reportMeta.ats_score ?? '—'}`,
+    `Target: ${reportMeta.target_role || '—'} @ ${reportMeta.target_company || '—'}`,
+    `Mode: ${reportMeta.mode || '—'}`,
+    `Report: ${reportMeta.report_id || '—'}`,
+    `Source: resume-ats`,
+  ];
+
+  await transport.sendMail({
+    from: mailFrom(),
+    to,
+    subject: `ATS lead — ${lead.name}${lead.addons?.includes('full_revamp') ? ' (revamp)' : ''}`,
+    text: lines.join('\n'),
+  });
+}
