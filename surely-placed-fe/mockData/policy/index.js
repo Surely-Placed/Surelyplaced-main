@@ -30,6 +30,7 @@ export const automaticallyCollected = [
   'Pages visited and time spent',
   'Referring URLs',
   'Cookies and similar tracking technologies',
+  'Mobile numbers and SMS consent data will not be shared with third parties or affiliates for marketing or promotional purposes',
 ]
 
 export const recordingTypes = [
