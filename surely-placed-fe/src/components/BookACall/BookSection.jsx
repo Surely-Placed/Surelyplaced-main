@@ -236,16 +236,31 @@ const BookSection = () => {
                     error={errors.name}
                   />
 
-                  <CustomPhoneInputField
-                    name="phone"
-                    control={control}
-                    label="Phone Number"
-                    placeholder="Enter Phone Number"
-                    type="text"
-                    inputTextColor="#fff"
-                    dd={true}
-                    error={errors?.phone}
-                  />
+                  <Box>
+                    <CustomPhoneInputField
+                      name="phone"
+                      control={control}
+                      label="Phone Number"
+                      placeholder="Enter Phone Number"
+                      type="text"
+                      inputTextColor="#fff"
+                      dd={true}
+                      error={errors?.phone}
+                    />
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: 'block',
+                        mt: 0.75,
+                        fontSize: '0.6875rem',
+                        lineHeight: 1.4,
+                        color: 'text.subText',
+                      }}
+                    >
+                      By submitting, you consent to being contacted using the contact details
+                      provided.
+                    </Typography>
+                  </Box>
                   <CustomTimezoneSelect
                     name="timezone"
                     control={control}
