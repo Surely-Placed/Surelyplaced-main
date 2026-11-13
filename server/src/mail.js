@@ -6,12 +6,18 @@ import {
   buildGoogleCalendarUrl,
   buildWebinarConfirmationHtml,
 } from './emails/webinarConfirmationHtml.js';
+import {
+  buildGoogleCalendarUrlFromIso,
+  buildIcsEvent,
+  formatPreferredCallLabel,
+} from './utils/calendarInvite.js';
 import { buildWaitlistOpenedHtml } from './emails/waitlistOpenedHtml.js';
 
 const WEBINAR_DATETIME = 'Sunday, July 20, 2026 · 8 PM ET';
 const LOGO_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), '../public/assets/logo-icon.png');
 const LOGO_CID = 'sp-logo';
 const FROM_DISPLAY_NAME = 'Surely Placed Webinar';
+const BOOK_CALL_FROM_NAME = 'Surely Placed';
 
 let transporter;
 
@@ -36,11 +42,11 @@ function getTransporter() {
 }
 
 /** Gmail shows the mailbox local-part ("grow") unless a display name is set. */
-function mailFrom() {
+function mailFrom(displayName = FROM_DISPLAY_NAME) {
   const address = config.smtp.from;
   if (!address) return address;
   if (address.includes('<')) return address;
-  return `"${FROM_DISPLAY_NAME}" <${address}>`;
+  return `"${displayName}" <${address}>`;
 }
 
 function formatAmount(amountMinor, currency) {
@@ -346,6 +352,104 @@ export async function sendWaitlistOpenedEmails({ recipients, webinar }) {
 }
 
 /** Internal notification when someone unlocks an ATS report / selects add-ons. */
+export async function sendBookCallEmails(bookedCall) {
+  const transport = getTransporter();
+  const teamEmail = config.smtp.webinarNotify || config.smtp.to;
+  if (!transport || !teamEmail || !config.smtp.from) {
+    console.warn('SMTP not configured — skipping book-a-call emails');
+    return;
+  }
+
+  const durationMinutes = config.bookCall?.durationMinutes || 30;
+  const joinUrl = bookedCall.zoom_join_url || null;
+  const preferredIso =
+    bookedCall.preferred_datetime instanceof Date
+      ? bookedCall.preferred_datetime.toISOString()
+      : new Date(bookedCall.preferred_datetime).toISOString();
+  const whenLabel = formatPreferredCallLabel(bookedCall.preferred_datetime, bookedCall.timezone);
+  const calendarUrl = buildGoogleCalendarUrlFromIso({
+    title: 'Surely Placed — Strategy Call',
+    startIso: preferredIso,
+    durationMinutes,
+    description: [
+      bookedCall.query ? `Discussion: ${bookedCall.query}` : '',
+      joinUrl ? `Join Zoom: ${joinUrl}` : '',
+      'Surely Placed — Talent That Sticks',
+    ]
+      .filter(Boolean)
+      .join('\n'),
+    location: joinUrl || '',
+  });
+
+  const teamLines = [
+    { label: 'Name', value: bookedCall.name },
+    { label: 'Phone', value: bookedCall.mobile },
+    { label: 'Email', value: bookedCall.email || '(not provided — share Zoom link via phone/WhatsApp)' },
+    { label: 'Preferred time', value: whenLabel },
+    { label: 'Timezone offset', value: bookedCall.timezone },
+    { label: 'Discussion', value: bookedCall.query },
+    { label: 'Zoom meeting ID', value: bookedCall.zoom_meeting_id },
+    { label: 'Zoom join link', value: joinUrl },
+    { label: 'Booking ID', value: bookedCall.id },
+  ];
+
+  await transport.sendMail({
+    from: mailFrom(BOOK_CALL_FROM_NAME),
+    to: teamEmail,
+    subject: `[Surely Placed] Book a call — ${bookedCall.name}`,
+    html: buildEmailHtml({
+      title: 'New book-a-call request',
+      intro: 'Someone booked a strategy call from the website.',
+      lines: teamLines,
+      cta: joinUrl ? { href: joinUrl, label: 'Open Zoom link' } : null,
+    }),
+  });
+
+  const customerEmail = bookedCall.email;
+  if (!customerEmail || !joinUrl) {
+    return;
+  }
+
+  const ics = buildIcsEvent({
+    uid: `booked-call-${bookedCall.id}@surelyplaced.com`,
+    title: 'Surely Placed — Strategy Call',
+    startIso: preferredIso,
+    durationMinutes,
+    description: [
+      bookedCall.query ? `We will discuss: ${bookedCall.query}` : '',
+      `Join Zoom: ${joinUrl}`,
+    ]
+      .filter(Boolean)
+      .join('\\n'),
+    location: joinUrl,
+  });
+
+  await transport.sendMail({
+    from: mailFrom(BOOK_CALL_FROM_NAME),
+    to: customerEmail,
+    subject: 'Your Surely Placed strategy call — Zoom invite',
+    html: buildEmailHtml({
+      title: 'Your strategy call is booked',
+      intro: `Hi ${bookedCall.name || 'there'}, thanks for booking a call with Surely Placed. Use the Zoom link below at your scheduled time. A calendar invite is attached so you can add this to your calendar.`,
+      lines: [
+        { label: 'When', value: whenLabel },
+        { label: 'Discussion', value: bookedCall.query },
+      ],
+      cta: { href: joinUrl, label: 'Join on Zoom' },
+      footer: calendarUrl
+        ? `Add to <a href="${escapeHtml(calendarUrl)}" style="color:#2857C4;">Google Calendar</a> or use the attached .ics file. Questions? Reply to this email.`
+        : 'Questions? Reply to this email.',
+    }),
+    attachments: [
+      {
+        filename: 'surely-placed-strategy-call.ics',
+        content: ics,
+        contentType: 'text/calendar; charset=utf-8; method=REQUEST',
+      },
+    ],
+  });
+}
+
 export async function sendAtsLeadNotification(lead, reportMeta = {}) {
   const transport = getTransporter();
   const to = config.smtp.webinarNotify || config.smtp.to;

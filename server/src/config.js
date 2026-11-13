@@ -77,6 +77,15 @@ export const config = {
     spreadsheetId: optionalEnv('ENROLLMENT_SHEET_SPREADSHEET_ID'),
     sheetName: optionalEnv('ENROLLMENT_SHEET_NAME', 'Enrollment Requests'),
   },
+  bookedCallSheet: {
+    spreadsheetId: optionalEnv('BOOKED_CALL_SHEET_SPREADSHEET_ID'),
+    sheetName: optionalEnv('BOOKED_CALL_SHEET_NAME', 'Booked Calls'),
+    webhookUrl: optionalEnv('BOOKED_CALL_SHEET_WEBHOOK_URL'),
+  },
+  bookCall: {
+    durationMinutes: Number(process.env.BOOK_CALL_DURATION_MINUTES || 30),
+    fallbackZoomJoinUrl: optionalEnv('BOOK_CALL_FALLBACK_ZOOM_JOIN_URL'),
+  },
   googleServiceAccount: {
     json: optionalEnv('GOOGLE_SERVICE_ACCOUNT_JSON'),
     credentialsPath: optionalEnv('GOOGLE_APPLICATION_CREDENTIALS'),
