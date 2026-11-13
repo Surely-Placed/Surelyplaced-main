@@ -20,6 +20,8 @@ import {
   APPLY_VISA_OPTIONS,
 } from '../../../mockData/Landing/apply';
 import { mapApplyAnswersToEnrollmentPayload } from './mapEnrollmentPayload';
+import SmsConsentCheckboxPlain from '@/components/common/SmsConsentCheckboxPlain';
+import { buildSmsConsentPayload } from '@/constants/smsConsent';
 import LandingBadge from './ui/LandingBadge';
 import LandingButton from './ui/LandingButton';
 import LandingCard from './ui/LandingCard';
@@ -179,6 +181,7 @@ export default function ApplyWizardPage() {
     fullName: '',
     phone: '',
     email: '',
+    smsConsent: false,
   }));
   const [dayIdx, setDayIdx] = useState(null);
   const [slot, setSlot] = useState(null);
@@ -289,7 +292,10 @@ export default function ApplyWizardPage() {
     setSubmitting(true);
     setSubmitError('');
     try {
-      const payload = mapApplyAnswersToEnrollmentPayload(a);
+      const payload = {
+        ...mapApplyAnswersToEnrollmentPayload(a),
+        ...buildSmsConsentPayload(a.smsConsent, '/apply'),
+      };
       await submitEnrollmentRequest(payload);
       trackMetaEvent('Lead');
       go(N + 1);
@@ -450,6 +456,11 @@ export default function ApplyWizardPage() {
                       <LandingBadge tone="teal">{detectCountry(e164(a.phone))}</LandingBadge>
                     )}
                   </label>
+                  <SmsConsentCheckboxPlain
+                    checked={Boolean(a.smsConsent)}
+                    onChange={(checked) => setA((s) => ({ ...s, smsConsent: checked }))}
+                    id="apply-sms-consent"
+                  />
                 </div>
               )}
 

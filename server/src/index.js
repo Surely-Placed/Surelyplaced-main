@@ -13,6 +13,7 @@ import webinarsRouter from './routes/webinars.js';
 import enrollmentRequestsRouter from './routes/enrollmentRequests.js';
 import bookCallRouter from './routes/bookCall.js';
 import atsRouter from './routes/ats.js';
+import smsConsentRouter from './routes/smsConsent.js';
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -94,6 +95,7 @@ app.use('/api/webinars', webinarsRouter);
 app.use('/api/enrollment-requests', enrollmentRequestsRouter);
 app.use('/book-call', bookCallRouter);
 app.use('/api/ats', atsRouter);
+app.use('/api/sms-consent', smsConsentRouter);
 app.use('/api/admin', adminRouter);
 
 // Public assets for transactional emails (logo, etc.)

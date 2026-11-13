@@ -1,5 +1,7 @@
 import { table } from '../db.js';
 import { syncEnrollmentRequestToSheet } from './enrollmentSheet.js';
+import { applySmsConsentFromFormSubmission } from './smsConsent.js';
+import { SMS_DISCLOSURE_VERSION } from './smsConsentConstants.js';
 
 function normalizeEmail(email) {
   return String(email || '')
@@ -88,6 +90,18 @@ export async function createEnrollmentRequest(payload = {}) {
     await syncEnrollmentRequestToSheet(row);
   } catch (sheetError) {
     console.error('Enrollment Google Sheets sync failed:', sheetError.message);
+  }
+
+  try {
+    await applySmsConsentFromFormSubmission({
+      full_name: fullName,
+      whatsapp,
+      sms_consent: payload.sms_consent,
+      sms_consent_source: payload.sms_consent_source || '/enroll',
+      sms_consent_disclosure_version: payload.sms_consent_disclosure_version || SMS_DISCLOSURE_VERSION,
+    });
+  } catch (consentError) {
+    console.error('Enrollment SMS consent persist failed:', consentError.message);
   }
 
   return row;

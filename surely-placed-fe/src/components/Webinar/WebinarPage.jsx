@@ -21,6 +21,7 @@ import { TestimonialsSection } from './sections/TestimonialsSection';
 import { FaqSection } from './sections/FaqSection';
 import { FinalCtaSection } from './sections/FinalCtaSection';
 import { MobileStickyCta } from './sections/MobileStickyCta';
+import { buildSmsConsentPayload } from '@/constants/smsConsent';
 
 const WebinarPage = ({
   price: priceProp,
@@ -71,6 +72,7 @@ const WebinarPage = ({
   );
 
   const setField = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
+  const setSmsConsent = (checked) => setForm((prev) => ({ ...prev, smsConsent: checked }));
 
   const openRegistration = () => {
     if (!webinarActive) {
@@ -131,6 +133,7 @@ const WebinarPage = ({
           visa: form.visa,
           experience: form.exp,
         },
+        ...buildSmsConsentPayload(form.smsConsent, '/webinar'),
       });
       setRegistrationOpen(false);
       setSuccess(true);
@@ -192,6 +195,7 @@ const WebinarPage = ({
         }}
         form={form}
         onFieldChange={setField}
+        onSmsConsentChange={setSmsConsent}
         formError={formError}
         datetimeLabel={datetimeLabel}
         submitting={registrationLoading}

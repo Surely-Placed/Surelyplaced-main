@@ -36,7 +36,15 @@ router.post('/join', async (req, res, next) => {
 
 router.post('/register', async (req, res, next) => {
   try {
-    const { name, email, contact, registration } = req.body || {};
+    const {
+      name,
+      email,
+      contact,
+      registration,
+      sms_consent,
+      sms_consent_source,
+      sms_consent_disclosure_version,
+    } = req.body || {};
 
     if (!name?.trim() || !email?.trim()) {
       return res.status(400).json({
@@ -49,6 +57,9 @@ router.post('/register', async (req, res, next) => {
       email,
       contact,
       registration,
+      sms_consent,
+      sms_consent_source,
+      sms_consent_disclosure_version,
     });
 
     return res.status(201).json({

@@ -48,7 +48,7 @@ const TermsAndCondition = () => {
           mb: { xs: 3, sm: '2.81rem' },
         }}
       >
-        Last updated: February 19, 2026
+        Last updated: November 14, 2026
       </Typography>
 
       <TitleContent content={'1. Acceptance of Terms'} />
@@ -125,6 +125,15 @@ const TermsAndCondition = () => {
           'These Terms are governed by applicable laws in the jurisdictions where Surely Placed operates'
         }
       />
+
+      <TitleContent content={'SMS Program'} anchorId="sms" />
+      <SubtitleContent content="After you provide SMS consent and confirm permission during a call, Surely Placed may text you about requested program information, related follow-ups and payment options." />
+      <SubtitleContent content="Message frequency varies: up to one proactive follow-up daily, with additional messages during active conversations. Message and data rates may apply." />
+      <SubtitleContent content="Reply STOP to unsubscribe or HELP for assistance. For support, contact support@surelyplaced.com or +1 (917) 755-0774." />
+      <SubtitleContent content="SMS consent is optional and is not a condition of purchase. You may request services through other channels." />
+      <SubtitleContent content="Delivery depends on network availability. Carriers are not responsible for delayed or undelivered messages." />
+      <SubtitleContent content="SMS consent does not authorize a credit application or enroll you in a financing provider's messaging program. Payment and credit agreements require separate acceptance." />
+      <SubtitleContent content="Please see our Privacy Policy for information about personal information handling." />
 
       <TitleContent content={'10. Contact'} />
       <SubtitleContent

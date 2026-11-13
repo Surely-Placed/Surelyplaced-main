@@ -18,6 +18,7 @@ import {
   cookieUsage,
   dataSharingItems,
   dataRetention,
+  smsCommunicationsParagraphs,
 } from '../../../mockData/policy';
 
 const PrivacyPolicy = () => {
@@ -54,7 +55,7 @@ const PrivacyPolicy = () => {
           mb: { xs: 3, sm: '2.81rem' },
         }}
       >
-        Last updated: February 19, 2026
+        Last updated: November 14, 2026
       </Typography>
 
       <TitleContent content={'1. Introduction'} />
@@ -154,6 +155,11 @@ const PrivacyPolicy = () => {
           </>
         }
       />
+
+      <TitleContent content={'SMS Communications'} />
+      {smsCommunicationsParagraphs.map((item, i) => (
+        <SubtitleContent key={i} content={item} />
+      ))}
 
       <TitleContent content={'5. Community Platforms (WhatsApp, Groups, etc.)'} />
       <SubtitleContent content={'As part of program delivery:'} />

@@ -1,5 +1,7 @@
 import { table } from '../db.js';
 import { config } from '../config.js';
+import { applySmsConsentFromFormSubmission } from './smsConsent.js';
+import { SMS_DISCLOSURE_VERSION } from './smsConsentConstants.js';
 
 const VISA_OPTIONS = new Set([
   'F-1 (job searching)',
@@ -57,6 +59,9 @@ export function validateAtsLead(body = {}) {
     visa,
     addons,
     scanId: String(body.scanId || '').trim(),
+    sms_consent: body.sms_consent,
+    sms_consent_source: body.sms_consent_source,
+    sms_consent_disclosure_version: body.sms_consent_disclosure_version,
   };
 }
 
@@ -118,5 +123,20 @@ async function persistEnrollmentRow(lead) {
 export async function persistAtsLead(lead, reportMeta = {}) {
   const row = await persistEnrollmentRow(lead);
   await Promise.allSettled([notifyViaEmail(lead, reportMeta), logToEnrollmentSheet(lead, reportMeta)]);
+
+  if (lead.phone) {
+    try {
+      await applySmsConsentFromFormSubmission({
+        full_name: lead.name,
+        phone: lead.phone,
+        sms_consent: lead.sms_consent,
+        sms_consent_source: lead.sms_consent_source || '/resume-ats',
+        sms_consent_disclosure_version: lead.sms_consent_disclosure_version || SMS_DISCLOSURE_VERSION,
+      });
+    } catch (consentError) {
+      console.error('[atsLeads] SMS consent persist failed:', consentError.message);
+    }
+  }
+
   return row;
 }

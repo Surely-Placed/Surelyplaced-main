@@ -102,4 +102,13 @@ export async function requestWebinarJoinOtp({ token, email, deviceId }) {
   return parseResponse(response);
 }
 
+export async function submitSmsConsent(payload) {
+  const response = await fetch(`${getPaymentsApiUrl()}/api/sms-consent`, {
+    method: 'POST',
+    headers: buildHeaders(),
+    body: JSON.stringify(payload),
+  });
+  return parseResponse(response);
+}
+
 export { getPaymentsApiUrl };

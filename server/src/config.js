@@ -82,6 +82,9 @@ export const config = {
     sheetName: optionalEnv('BOOKED_CALL_SHEET_NAME', 'Booked Calls'),
     webhookUrl: optionalEnv('BOOKED_CALL_SHEET_WEBHOOK_URL'),
   },
+  smsConsentCrm: {
+    webhookUrl: optionalEnv('SMS_CONSENT_CRM_WEBHOOK_URL'),
+  },
   bookCall: {
     durationMinutes: Number(process.env.BOOK_CALL_DURATION_MINUTES || 30),
     fallbackZoomJoinUrl: optionalEnv('BOOK_CALL_FALLBACK_ZOOM_JOIN_URL'),
