@@ -1,6 +1,8 @@
 import { table } from '../db.js';
 import { sendBookCallEmails } from '../mail.js';
 import { syncBookedCallToSheet } from './bookedCallSheet.js';
+import { applySmsConsentFromFormSubmission } from './smsConsent.js';
+import { SMS_DISCLOSURE_VERSION } from './smsConsentConstants.js';
 
 const PHONE_PATTERN = /^\+?\d{10,15}$/;
 
@@ -94,6 +96,18 @@ export async function createBookedCall(payload = {}) {
   sendBookCallEmails(row).catch((mailError) => {
     console.error('Book-a-call email failed:', mailError.message);
   });
+
+  try {
+    await applySmsConsentFromFormSubmission({
+      name: row.name,
+      mobile: row.mobile,
+      sms_consent: payload.sms_consent,
+      sms_consent_source: payload.sms_consent_source || '/book-a-call',
+      sms_consent_disclosure_version: payload.sms_consent_disclosure_version || SMS_DISCLOSURE_VERSION,
+    });
+  } catch (consentError) {
+    console.error('Book-a-call SMS consent persist failed:', consentError.message);
+  }
 
   return row;
 }

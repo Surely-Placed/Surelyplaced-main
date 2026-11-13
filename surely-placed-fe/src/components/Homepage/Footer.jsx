@@ -133,6 +133,16 @@ const Footer = () => {
               Terms of Service
             </Typography>
           </Link>
+          <Link href={'/terms-and-conditions#sms'} className="link-styles touch-target">
+            <Typography variant="body2" color="text">
+              SMS Terms
+            </Typography>
+          </Link>
+          <Link href={'/sms-consent'} className="link-styles touch-target">
+            <Typography variant="body2" color="text">
+              SMS Consent
+            </Typography>
+          </Link>
           <Link href={'/refund-cancellation-policy'} className="link-styles touch-target">
             <Typography variant="body2" color="text">
               Refund & Cancellation Policy

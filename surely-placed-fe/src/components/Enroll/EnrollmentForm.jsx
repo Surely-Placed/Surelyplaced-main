@@ -21,6 +21,8 @@ import {
 import { trackMetaEvent } from '@/components/seo/MetaPixel';
 import { submitEnrollmentRequest } from '@/lib/payments';
 import { bodySx, primaryCtaSx } from '../Webinar/styles';
+import SmsConsentCheckbox from '@/components/common/SmsConsentCheckbox';
+import { buildSmsConsentPayload } from '@/constants/smsConsent';
 
 function validateForm(form) {
   const errors = {};
@@ -82,6 +84,7 @@ export function EnrollmentForm({ id = 'enrollment-form', compact = false }) {
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [smsConsent, setSmsConsent] = useState(false);
 
   const setField = (key) => (e) => {
     setForm((prev) => ({ ...prev, [key]: e.target.value }));
@@ -103,7 +106,10 @@ export function EnrollmentForm({ id = 'enrollment-form', compact = false }) {
     setFieldErrors({});
 
     try {
-      await submitEnrollmentRequest(form);
+      await submitEnrollmentRequest({
+        ...form,
+        ...buildSmsConsentPayload(smsConsent, '/enroll'),
+      });
       trackMetaEvent('Lead');
       setSuccess(true);
     } catch (error) {
@@ -204,6 +210,7 @@ export function EnrollmentForm({ id = 'enrollment-form', compact = false }) {
           error={Boolean(fieldErrors.whatsapp)}
           helperText={fieldErrors.whatsapp}
         />
+        <SmsConsentCheckbox checked={smsConsent} onChange={setSmsConsent} id="enroll-sms-consent" />
         <TextField
           select
           fullWidth

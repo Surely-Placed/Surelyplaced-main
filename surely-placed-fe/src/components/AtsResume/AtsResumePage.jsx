@@ -716,6 +716,8 @@ export default function AtsResumePage({ className = '', fontVars = {} }) {
             <span>www.surelyplaced.com</span>
           </div>
           <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Link href="/privacy-policy">Privacy Policy</Link>
+            <Link href="/terms-and-conditions#sms">SMS Terms</Link>
             <button type="button" className="src-btn" onClick={() => setSourcesOpen(true)}>
               Sources
             </button>

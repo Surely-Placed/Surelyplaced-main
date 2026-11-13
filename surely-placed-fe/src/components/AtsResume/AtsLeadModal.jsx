@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitAtsLead } from '@/lib/atsScan';
+import SmsConsentCheckboxPlain from '@/components/common/SmsConsentCheckboxPlain';
+import { buildSmsConsentPayload } from '@/constants/smsConsent';
 
 const VISA_OPTIONS = [
   'F-1 (job searching)',
@@ -29,6 +31,7 @@ export default function AtsLeadModal({
   const [expertReview, setExpertReview] = useState(false);
   const [fullRevamp, setFullRevamp] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [smsConsent, setSmsConsent] = useState(false);
   const [error, setError] = useState('');
   const [okMsg, setOkMsg] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -88,6 +91,7 @@ export default function AtsLeadModal({
       missing_keywords: leadContext?.missing,
       file_name: leadContext?.fileName,
       source: 'resume-ats',
+      ...buildSmsConsentPayload(smsConsent, '/resume-ats'),
     };
 
     setSubmitting(true);
@@ -209,6 +213,11 @@ export default function AtsLeadModal({
               </select>
             </div>
           </div>
+          <SmsConsentCheckboxPlain
+            checked={smsConsent}
+            onChange={setSmsConsent}
+            id="ats-sms-consent"
+          />
           <label className="consent">
             <input type="checkbox" checked={consent} onChange={(ev) => setConsent(ev.target.checked)} />
             <span>I agree that Surely Placed can contact me about my report and any service I selected.</span>

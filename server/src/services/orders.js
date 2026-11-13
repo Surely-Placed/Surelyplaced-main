@@ -17,6 +17,8 @@ import {
   resolveActiveZoomMeetingId,
 } from './webinarEvents.js';
 import { syncPaidWebinarRegistrationToSheet } from './googleSheets.js';
+import { applySmsConsentFromFormSubmission } from './smsConsent.js';
+import { SMS_DISCLOSURE_VERSION } from './smsConsentConstants.js';
 import crypto from 'crypto';
 
 const IDEMPOTENCY_TTL_HOURS = 24;
@@ -464,7 +466,7 @@ export async function createOrder({
  * Free webinar registration — same customer/order storage and post-registration
  * pipeline as paid checkout (Zoom, seats, email, Google Sheets), without PayPal.
  */
-export async function registerWebinarFree({ name, email, contact, registration }) {
+export async function registerWebinarFree({ name, email, contact, registration, sms_consent, sms_consent_source, sms_consent_disclosure_version }) {
   const plan = await getPlanBySlug(WEBINAR_PLAN_SLUG);
   if (!plan) {
     const error = new Error(`Plan not found: ${WEBINAR_PLAN_SLUG}`);
@@ -515,6 +517,21 @@ export async function registerWebinarFree({ name, email, contact, registration }
       },
     })
     .returning('*');
+
+  if (customer.contact) {
+    try {
+      await applySmsConsentFromFormSubmission({
+        full_name: customer.name,
+        contact: customer.contact,
+        candidate_id: customer.id,
+        sms_consent,
+        sms_consent_source: sms_consent_source || '/webinar',
+        sms_consent_disclosure_version: sms_consent_disclosure_version || SMS_DISCLOSURE_VERSION,
+      });
+    } catch (consentError) {
+      console.error('Webinar SMS consent persist failed:', consentError.message);
+    }
+  }
 
   return finalizePaidOrder(order.id);
 }

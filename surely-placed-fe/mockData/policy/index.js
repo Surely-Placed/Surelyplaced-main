@@ -30,7 +30,13 @@ export const automaticallyCollected = [
   'Pages visited and time spent',
   'Referring URLs',
   'Cookies and similar tracking technologies',
-  'Mobile numbers and SMS consent data will not be shared with third parties or affiliates for marketing or promotional purposes',
+]
+
+export const smsCommunicationsParagraphs = [
+  'Surely Placed uses your mobile number and SMS permission record to send the program information, related follow-ups and payment-option information you agree to receive.',
+  'We do not sell or rent your mobile number or SMS permission record, or share them with other businesses or affiliates for their marketing or promotional purposes. SMS opt-in records and consent are excluded from the other sharing permissions in this policy and are not disclosed to third parties.',
+  'Messaging providers may process your mobile number and message content solely to deliver and support our messages on our behalf. They may not use this information for their own marketing.',
+  'You can withdraw SMS permission by replying STOP or contacting support@surelyplaced.com.',
 ]
 
 export const recordingTypes = [
@@ -74,6 +80,7 @@ export const dataSharingItems = [
   'With service providers who support operations (e.g., hosting, payments, analytics)',
   'When required by law or legal process',
   'To protect the rights, safety, or property of Surely Placed or users',
+  'SMS opt-in records and mobile numbers collected for SMS permission are excluded from this section; see SMS Communications above',
 ]
 
 export const dataRetention = [

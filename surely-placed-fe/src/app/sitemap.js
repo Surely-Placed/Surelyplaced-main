@@ -12,6 +12,7 @@ const staticRoutes = [
   '/resume-ats',
   '/privacy-policy',
   '/terms-and-conditions',
+  '/sms-consent',
   '/refund-cancellation-policy',
   '/homepage',
   '/ssg-privacy-policy',

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import {
   Button,
   CircularProgress,
@@ -18,6 +19,7 @@ import {
   WEBINAR_VISA_OPTIONS,
 } from '../../../../mockData/Webinar';
 import { primaryCtaSx } from '../styles';
+import SmsConsentCheckbox from '@/components/common/SmsConsentCheckbox';
 
 export function validateRegistration(form) {
   if (!form.fullName.trim()) return 'Please enter your full name.';
@@ -42,6 +44,7 @@ export function RegistrationDialog({
   onClose,
   form,
   onFieldChange,
+  onSmsConsentChange,
   formError,
   datetimeLabel,
   submitting,
@@ -81,6 +84,11 @@ export function RegistrationDialog({
             onChange={onFieldChange('phone')}
             placeholder="+1 555 000 0000"
             helperText="Include country code, e.g. +1 or +91"
+          />
+          <SmsConsentCheckbox
+            checked={Boolean(form.smsConsent)}
+            onChange={onSmsConsentChange}
+            id="webinar-sms-consent"
           />
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 6 }}>
@@ -171,6 +179,11 @@ export function RegistrationDialog({
 
           <Typography variant="caption" color="text.subText" textAlign="center">
             Instant confirmation email · Limited seats
+          </Typography>
+          <Typography variant="caption" color="text.subText" textAlign="center">
+            <Link href="/privacy-policy">Privacy Policy</Link>
+            {' · '}
+            <Link href="/terms-and-conditions#sms">SMS Terms</Link>
           </Typography>
         </Stack>
       </DialogContent>

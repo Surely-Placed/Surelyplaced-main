@@ -32,12 +32,15 @@ import CustomPhoneInputField from '@/common/CustomPhoneInputField';
 import CustomTimezoneSelect from '@/common/CustomTimezoneSelect';
 import Link from 'next/link';
 import ContactPhones from '@/components/common/ContactPhones';
+import SmsConsentCheckbox from '@/components/common/SmsConsentCheckbox';
+import { buildSmsConsentPayload } from '@/constants/smsConsent';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const BookSection = () => {
   const [loading, setLoading] = useState(false); // 👈 added loader state
+  const [smsConsent, setSmsConsent] = useState(false);
 
   const {
     control,
@@ -108,6 +111,7 @@ const BookSection = () => {
         preferred_datetime: preferredDatetimeUtc,
         timezone: timezoneOffsetLabel,
         query: data.message,
+        ...buildSmsConsentPayload(smsConsent, '/book-a-call'),
       };
 
       const { variant, message } = await HomeManager.bookCall(payload);
@@ -115,6 +119,7 @@ const BookSection = () => {
 
       if (variant === 'success') {
         reset();
+        setSmsConsent(false);
       }
     } catch (err) {
       console.error(err);
@@ -247,19 +252,11 @@ const BookSection = () => {
                       dd={true}
                       error={errors?.phone}
                     />
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        display: 'block',
-                        mt: 0.75,
-                        fontSize: '0.6875rem',
-                        lineHeight: 1.4,
-                        color: 'text.subText',
-                      }}
-                    >
-                      By submitting, you consent to being contacted using the contact details
-                      provided.
-                    </Typography>
+                    <SmsConsentCheckbox
+                      checked={smsConsent}
+                      onChange={setSmsConsent}
+                      id="book-a-call-sms-consent"
+                    />
                   </Box>
                   <CustomTimezoneSelect
                     name="timezone"

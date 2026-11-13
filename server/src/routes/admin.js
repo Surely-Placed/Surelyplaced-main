@@ -17,6 +17,11 @@ import {
 import { listWaitlist } from '../services/webinarWaitlist.js';
 import { deleteWebinarAttendee, resetWebinarJoinDevice } from '../services/orders.js';
 import { isZoomAuthConfigured } from '../services/zoom.js';
+import {
+  recordCallConfirmation,
+  recordCallConfirmationDeclined,
+  recordSmsOptOut,
+} from '../services/smsConsent.js';
 
 const router = Router();
 
@@ -163,6 +168,43 @@ router.get('/waitlist', requireAdmin, async (req, res, next) => {
       pendingOnly: req.query.pendingOnly === '1' || req.query.pendingOnly === 'true',
     });
     res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/sms-consent/opt-out', requireAdmin, async (req, res, next) => {
+  try {
+    const { mobile_number: mobileNumber, source } = req.body || {};
+    const record = await recordSmsOptOut({ mobileNumber, source: source || 'admin' });
+    res.json({ ok: true, record });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/sms-consent/call-confirmation', requireAdmin, async (req, res, next) => {
+  try {
+    const { mobile_number: mobileNumber, source, status } = req.body || {};
+    const record = await recordCallConfirmation({
+      mobileNumber,
+      source: source || 'call',
+      status: status || 'confirmed',
+    });
+    res.json({ ok: true, record });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/sms-consent/call-confirmation-declined', requireAdmin, async (req, res, next) => {
+  try {
+    const { mobile_number: mobileNumber, source } = req.body || {};
+    const record = await recordCallConfirmationDeclined({
+      mobileNumber,
+      source: source || 'call',
+    });
+    res.json({ ok: true, record });
   } catch (error) {
     next(error);
   }

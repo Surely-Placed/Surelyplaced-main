@@ -46,6 +46,8 @@ export default function LandingMarketingFooter({ wide = false }) {
           <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 24px' }}>
             <Link href="/privacy-policy">Privacy Policy</Link>
             <Link href="/terms-and-conditions">Terms of Service</Link>
+            <Link href="/terms-and-conditions#sms">SMS Terms</Link>
+            <Link href="/sms-consent">SMS Consent</Link>
             <Link href="/refund-cancellation-policy">Refund Policy</Link>
           </nav>
         </div>

@@ -155,4 +155,5 @@ export const EMPTY_WEBINAR_FORM = {
   status: '',
   visa: '',
   exp: '',
+  smsConsent: false,
 };
