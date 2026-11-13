@@ -315,6 +315,60 @@ export async function createRegistrationMeeting({
   };
 }
 
+/**
+ * One-off consultation / book-a-call meeting (no registrant API).
+ */
+export async function createConsultationMeeting({
+  topic,
+  startTimeIso,
+  durationMinutes = 30,
+  timezone = 'UTC',
+}) {
+  if (!isZoomAuthConfigured()) {
+    throw new Error('Zoom OAuth is not configured');
+  }
+
+  const token = await getAccessToken();
+  const response = await fetch(`${ZOOM_API_BASE}/users/me/meetings`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      topic: topic || 'Surely Placed — Strategy Call',
+      type: 2,
+      start_time: startTimeIso,
+      duration: durationMinutes,
+      timezone: timezone || 'UTC',
+      settings: {
+        host_video: true,
+        participant_video: true,
+        join_before_host: false,
+        mute_upon_entry: true,
+        waiting_room: true,
+        approval_type: 2,
+        auto_recording: 'none',
+      },
+    }),
+  });
+
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(
+      `Zoom create consultation meeting failed (${response.status}): ${body?.message || JSON.stringify(body)}`
+    );
+  }
+
+  return {
+    meetingId: String(body.id),
+    startUrl: body.start_url || null,
+    joinUrl: body.join_url || null,
+    topic: body.topic,
+    startTime: body.start_time,
+  };
+}
+
 export class ZoomMeetingNotFoundError extends Error {
   constructor(meetingId, detail = '') {
     super(`Zoom meeting deleted or not found: ${meetingId}${detail ? ` (${detail})` : ''}`);
